@@ -1,0 +1,57 @@
+# Local development databases.
+# Every dev runs their own copy. Nothing here talks to the production droplet.
+#
+#   docker compose -f docker-compose.dev.yml up -d
+#
+name: schoolproj-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      # 127.0.0.1 prefix keeps this off the network. Do not remove it.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: devpassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # *.sql here runs once, on first creation of an empty pgdata volume
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    command: ["redis-server", "--requirepass", "devpassword", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a devpassword ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Optional web UI for poking at the database.
+  # Off by default. Start it with:  docker compose -f docker-compose.dev.yml --profile tools up -d
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: [tools]
+
+volumes:
+  pgdata:
+  redisdata:
