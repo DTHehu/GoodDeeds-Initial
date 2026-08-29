@@ -1,4 +1,4 @@
-@GoodDeedsApi_HostAddress = http://localhost:5039
+@GoodDeedsApi_HostAddress = http://localhost:5160
 
 GET {{GoodDeedsApi_HostAddress}}/weatherforecast/
 Accept: application/json
