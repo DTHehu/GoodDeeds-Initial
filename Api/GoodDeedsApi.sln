@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoodDeedsApi", "GoodDeedsApi.csproj", "{62EDDD85-964D-48F2-803E-F315534EB516}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62EDDD85-964D-48F2-803E-F315534EB516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62EDDD85-964D-48F2-803E-F315534EB516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62EDDD85-964D-48F2-803E-F315534EB516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62EDDD85-964D-48F2-803E-F315534EB516}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
