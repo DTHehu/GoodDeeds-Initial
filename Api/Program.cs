@@ -7,7 +7,6 @@ using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
 
 namespace GoodDeedsApi;
 
@@ -102,14 +101,9 @@ public class Program
 
             app.MapOpenApi();
 
-            // Swagger UI at /swagger, Scalar at /scalar. Both read the same
-            // document at /openapi/v1.json.
+            // Swagger UI at /swagger, reading /openapi/v1.json.
             app.UseSwaggerUI(options =>
                 options.SwaggerEndpoint("/openapi/v1.json", "GoodDeeds API v1"));
-
-            app.MapScalarApiReference(options => options
-                .WithTitle("GoodDeeds API")
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient));
         }
 
         // UseHttpsRedirection stays out of production: the container listens on

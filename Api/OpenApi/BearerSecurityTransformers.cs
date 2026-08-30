@@ -6,7 +6,7 @@ namespace GoodDeedsApi.OpenApi;
 
 /// <summary>
 /// Declares the bearer scheme, which is what puts the Authorize button in
-/// Swagger UI and Scalar. Without it neither can call a protected endpoint.
+/// Swagger UI. Without it the UI cannot call a protected endpoint.
 /// </summary>
 public sealed class BearerSecuritySchemeTransformer : IOpenApiDocumentTransformer
 {
