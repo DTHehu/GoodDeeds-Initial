@@ -5,16 +5,8 @@ using Microsoft.EntityFrameworkCore;
 namespace GoodDeedsApi.Data;
 
 /// <summary>
-/// Brings an empty database up to a working state on startup so a new
-/// contributor only has to run docker compose and press F5.
-///
-/// Runs three steps in order:
-///   1. Wait for Postgres to accept connections (the container is often still
-///      booting when the API starts).
-///   2. Apply any migrations the database has not seen yet, which creates
-///      every table from scratch on a brand new database.
-///   3. Seed the rows the app cannot function without: the roles, and in
-///      Development a starter admin account.
+/// Waits for Postgres, applies migrations, then seeds roles and a Development
+/// admin, so an empty database comes up ready to use. Every step is idempotent.
 /// </summary>
 public static class DbInitializer
 {
@@ -24,9 +16,8 @@ public static class DbInitializer
 
     public static async Task InitializeAsync(WebApplication app)
     {
-        // Services are resolved from a scope because DbContext and UserManager
-        // are registered as scoped, and the application root provider is not a
-        // scope. Resolving them directly from app.Services would throw.
+        // Startup is not inside a request, so a scope has to be created before
+        // scoped services can be resolved.
         using var scope = app.Services.CreateScope();
         var services = scope.ServiceProvider;
 
@@ -35,8 +26,6 @@ public static class DbInitializer
 
         await WaitForDatabaseAsync(db, logger);
 
-        // Creates the database if it does not exist, then applies every
-        // migration that has not been recorded in __EFMigrationsHistory.
         var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
         if (pending.Count > 0)
         {
@@ -64,8 +53,7 @@ public static class DbInitializer
             await Task.Delay(RetryDelay);
         }
 
-        // Let the next call throw with the real provider error rather than a
-        // generic message, so the cause is visible in the logs.
+        // Surfaces the provider's real error rather than a generic timeout.
         await db.Database.OpenConnectionAsync();
     }
 
@@ -91,8 +79,7 @@ public static class DbInitializer
         IHostEnvironment environment,
         ILogger logger)
     {
-        // Only ever seeded locally. In any other environment the first admin is
-        // promoted by hand, so a well-known password cannot ship to a server.
+        // Development only, so a well-known password cannot reach a server.
         if (!environment.IsDevelopment()) return;
 
         var email = configuration["SeedAdmin:Email"];

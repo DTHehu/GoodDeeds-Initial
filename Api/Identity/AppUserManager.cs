@@ -5,14 +5,9 @@ using Microsoft.Extensions.Options;
 namespace GoodDeedsApi.Identity;
 
 /// <summary>
-/// UserManager is the service Identity uses for every user operation: creating
-/// accounts, hashing and verifying passwords, managing roles and lockouts.
-/// MapIdentityApi's /register endpoint resolves it from DI and calls CreateAsync.
-///
-/// The built-in /register body is only { email, password }, but the schema
-/// requires a non-null display name. Overriding CreateAsync lets the default
-/// endpoint keep working while still guaranteeing Name and CreatedAt are set.
-/// Users can change their display name afterwards via PUT /api/users/me.
+/// Identity's /register body is only { email, password }, but Name is not null
+/// in the schema. Overriding CreateAsync fills it in so the stock endpoint keeps
+/// working; users can change it later at PUT /api/users/me.
 /// </summary>
 public class AppUserManager(
     IUserStore<AppUser> store,
@@ -47,8 +42,6 @@ public class AppUserManager(
         if (!string.IsNullOrWhiteSpace(user.Name))
             return;
 
-        // Fall back to the part of the email before the '@', so a registration
-        // that never supplied a name still satisfies the not-null column.
         var email = user.Email ?? user.UserName ?? string.Empty;
         var localPart = email.Split('@')[0];
 

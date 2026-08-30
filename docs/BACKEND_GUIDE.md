@@ -701,8 +701,8 @@ public class OrganizationService
 }
 ```
 
-**Step 3 — register it.** One line in `Program.cs`, under
-`>>> ADD YOUR NEW SERVICES HERE <<<`:
+**Step 3 — register it.** One line in `Program.cs`, under the
+`// Add new services here.` comment:
 
 ```csharp
 builder.Services.AddScoped<OrganizationService>();

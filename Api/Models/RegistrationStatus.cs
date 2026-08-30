@@ -1,9 +1,6 @@
 namespace GoodDeedsApi.Models;
 
-/// <summary>
-/// Allowed values for <see cref="EventRegistration.Status"/>. Stored as text in
-/// Postgres so the set can grow without a schema change.
-/// </summary>
+/// <summary>Stored as text so the set can grow without a schema change.</summary>
 public static class RegistrationStatus
 {
     public const string Registered = "registered";
