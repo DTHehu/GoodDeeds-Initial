@@ -11,7 +11,7 @@ namespace GoodDeedsApi.Controllers;
 /// </summary>
 [Route("api/organizations")]
 [Authorize(Policy = Policies.AuthenticatedUser)]
-public class OrganizationsController(IOrganizationService organizations) : ApiControllerBase
+public class OrganizationsController(OrganizationService organizations) : ApiControllerBase
 {
     [HttpGet]
     [AllowAnonymous]

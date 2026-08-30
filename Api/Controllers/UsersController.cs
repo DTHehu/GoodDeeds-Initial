@@ -16,8 +16,8 @@ namespace GoodDeedsApi.Controllers;
 [Route("api/users")]
 [Authorize(Policy = Policies.AuthenticatedUser)]
 public class UsersController(
-    IUserService users,
-    IEventRegistrationService registrations) : ApiControllerBase
+    UserService users,
+    EventRegistrationService registrations) : ApiControllerBase
 {
     /// <summary>Listing every account is an administrative view.</summary>
     [HttpGet]

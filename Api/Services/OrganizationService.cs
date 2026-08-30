@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoodDeedsApi.Services;
 
-public class OrganizationService(AppDbContext db, ICacheService cache) : IOrganizationService
+public class OrganizationService(AppDbContext db, RedisCacheService cache)
 {
     private static string CacheKey(Guid id) => $"organization:{id}";
 

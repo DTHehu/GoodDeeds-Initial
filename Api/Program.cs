@@ -87,11 +87,11 @@ public class Program
             .AddPolicy(Policies.AuthenticatedUser, policy => policy.RequireAuthenticatedUser());
 
         // ---------- Application services ----------
-        builder.Services.AddScoped<ICacheService, RedisCacheService>();
-        builder.Services.AddScoped<IOrganizationService, OrganizationService>();
-        builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IEventService, EventService>();
-        builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>();
+        builder.Services.AddScoped<RedisCacheService>();
+        builder.Services.AddScoped<OrganizationService>();
+        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<EventService>();
+        builder.Services.AddScoped<EventRegistrationService>();
 
         builder.Services.AddControllers();
         builder.Services.AddProblemDetails();
@@ -179,7 +179,7 @@ public class Program
         .WithTags("Auth");
 
         // Cheap liveness probe that proves both backing stores are reachable.
-        app.MapGet("/health", async (AppDbContext db, ICacheService cache) =>
+        app.MapGet("/health", async (AppDbContext db, RedisCacheService cache) =>
         {
             var postgresUp = await db.Database.CanConnectAsync();
 

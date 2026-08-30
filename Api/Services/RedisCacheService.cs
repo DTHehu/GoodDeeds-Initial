@@ -3,9 +3,17 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace GoodDeedsApi.Services;
 
+/// <summary>
+/// Thin JSON wrapper over IDistributedCache (Redis) so services do not deal
+/// with byte arrays and serialization directly.
+///
+/// Every method swallows connection failures on purpose: a cache outage should
+/// make the app slower, not broken. A failed read looks like a miss, and the
+/// caller falls through to Postgres.
+/// </summary>
 public class RedisCacheService(
     IDistributedCache cache,
-    ILogger<RedisCacheService> logger) : ICacheService
+    ILogger<RedisCacheService> logger)
 {
     private static readonly TimeSpan DefaultTtl = TimeSpan.FromMinutes(5);
 

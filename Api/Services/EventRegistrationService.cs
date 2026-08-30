@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoodDeedsApi.Services;
 
-public class EventRegistrationService(AppDbContext db, ICacheService cache) : IEventRegistrationService
+public class EventRegistrationService(AppDbContext db, RedisCacheService cache)
 {
     public async Task<ServiceResult<IReadOnlyList<EventRegistrationDto>>> GetForEventAsync(
         Guid eventId, CancellationToken ct = default)

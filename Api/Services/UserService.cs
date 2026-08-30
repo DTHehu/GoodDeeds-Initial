@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoodDeedsApi.Services;
 
-public class UserService(AppDbContext db, ICacheService cache) : IUserService
+public class UserService(AppDbContext db, RedisCacheService cache)
 {
     private static string CacheKey(Guid id) => $"user:{id}";
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GoodDeedsApi.Services;
 
-public class EventService(AppDbContext db, ICacheService cache) : IEventService
+public class EventService(AppDbContext db, RedisCacheService cache)
 {
     private static string CacheKey(Guid id) => $"event:{id}";
 

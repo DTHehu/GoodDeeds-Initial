@@ -171,30 +171,41 @@ else supplies it. That something else is the **service container**.
 
 ### Registration: teaching the container
 
+Each service is registered as itself. There is no interface in front of it:
+
 ```csharp
 // Program.cs:90
-builder.Services.AddScoped<ICacheService, RedisCacheService>();
-builder.Services.AddScoped<IOrganizationService, OrganizationService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IEventRegistrationService, EventRegistrationService>();
+builder.Services.AddScoped<RedisCacheService>();
+builder.Services.AddScoped<OrganizationService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<EventRegistrationService>();
 ```
 
-Read as: "when anything asks for an `IUserService`, build a `UserService`."
+Read as: "when anything asks for a `UserService`, build one, and reuse it for the
+rest of this request."
+
+> **Why no interfaces.** A one-line `IUserService` that only ever has a single
+> implementation is indirection without a payoff: it doubles the number of files and
+> means every "go to definition" lands on a signature instead of the code. Interfaces
+> earn their keep when there is genuinely more than one implementation, or when a
+> boundary has to be stubbed and cannot otherwise be. Neither applies here, so the
+> concrete classes are registered directly. If a second implementation ever shows up,
+> extracting an interface then is a small, mechanical change.
 
 ### Consumption: asking for what you need
 
 ```csharp
 // Controllers/UsersController.cs
 public class UsersController(
-    IUserService users,
-    IEventRegistrationService registrations) : ApiControllerBase
+    UserService users,
+    EventRegistrationService registrations) : ApiControllerBase
 ```
 
-When a request arrives, ASP.NET Core sees the controller needs those two interfaces,
-looks up the registrations, builds a `UserService` — which itself needs an
-`AppDbContext` and an `ICacheService`, so it builds those too — and hands the
-controller a working object graph. You never write that wiring.
+When a request arrives, ASP.NET Core sees the controller needs those two types, looks
+up the registrations, builds a `UserService` — which itself needs an `AppDbContext`
+and a `RedisCacheService`, so it builds those too — and hands the controller a
+working object graph. You never write that wiring.
 
 ### Lifetimes — the part that causes bugs
 
@@ -221,11 +232,14 @@ Startup code is not inside a request, so no scope exists yet. Asking for a scope
 service without one throws. Creating a scope manually gives the `DbContext` a defined
 beginning and end — `using` disposes it when the block exits.
 
-### Why interfaces at all
+### Testing without interfaces
 
-Because `UserService` depends on `ICacheService` rather than `RedisCacheService`,
-swapping Redis for an in-memory cache in tests is a one-line change in `Program.cs`.
-No service code changes.
+The usual argument for interfaces is that they let you swap a fake in during tests.
+Without them you have two options that work just as well here. Mark a method
+`virtual` and subclass it for a stub, or — better for anything touching the database
+— skip the fake entirely and run against a real Postgres in a throwaway container.
+The second gives you more confidence anyway, because it exercises the actual SQL EF
+generates rather than a mock's idea of it.
 
 ---
 
@@ -373,7 +387,7 @@ in this request holds a stale copy.
 
 ## 6. Redis
 
-**Files:** `Services/ICacheService.cs`, `Services/RedisCacheService.cs`, `Program.cs:39`
+**Files:** `Services/RedisCacheService.cs`, `Program.cs:39`
 
 ### What Redis actually is
 
@@ -739,7 +753,6 @@ Browse them interactively at `/scalar`.
 | File | Role |
 | --- | --- |
 | `Services/ServiceResult.cs` | Lets a service say "not found" or "conflict" without throwing. |
-| `Services/ICacheService.cs` | Cache contract, so Redis is swappable. |
 | `Services/RedisCacheService.cs` | JSON wrapper over the distributed cache, fails soft. |
 | `Services/OrganizationService.cs` | CRUD, duplicate-email detection. |
 | `Services/UserService.cs` | Profile reads and updates, roles projection. |

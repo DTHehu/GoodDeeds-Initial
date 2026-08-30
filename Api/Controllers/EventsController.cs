@@ -18,8 +18,8 @@ namespace GoodDeedsApi.Controllers;
 [Route("api/events")]
 [Authorize(Policy = Policies.AuthenticatedUser)]
 public class EventsController(
-    IEventService events,
-    IEventRegistrationService registrations) : ApiControllerBase
+    EventService events,
+    EventRegistrationService registrations) : ApiControllerBase
 {
     [HttpGet]
     [AllowAnonymous]
