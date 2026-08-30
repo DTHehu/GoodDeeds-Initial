@@ -10,43 +10,49 @@ using Scalar.AspNetCore;
 
 namespace GoodDeedsApi;
 
+/// <summary>
+/// The starting point of the whole application.
+///
+/// It reads top to bottom in two halves:
+///   1. Everything before builder.Build() registers the services the app can use.
+///   2. Everything after it sets up how an incoming request is handled.
+/// </summary>
 public class Program
 {
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // ---------- Postgres / EF Core ----------
+        // ================================================================
+        // PART 1 — Register services
+        // ================================================================
+
+        // ---------- Postgres, through Entity Framework ----------
+        // Connection strings live in appsettings.Development.json.
         builder.Services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql(
-                builder.Configuration.GetConnectionString("DefaultConnection"),
-                npgsql => npgsql.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorCodesToAdd: null));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 
-            // Surfaces parameter values in logs. Local only; these are secrets
-            // in any other environment.
             if (builder.Environment.IsDevelopment())
             {
+                // Puts the real SQL and its parameter values in the console.
+                // Very useful while learning; never switch it on in production,
+                // because parameter values can include passwords.
                 options.EnableDetailedErrors();
                 options.EnableSensitiveDataLogging();
             }
         });
 
         // ---------- Redis ----------
+        // InstanceName prefixes every key, so a key we call "user:123" is
+        // actually stored in Redis as "app:user:123".
         builder.Services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = builder.Configuration.GetConnectionString("Redis");
             options.InstanceName = "app:";
         });
 
-        // ---------- Authentication / Identity ----------
-        // AddIdentityApiEndpoints wires up the whole Identity stack and the
-        // bearer-token scheme that MapIdentityApi's /login endpoint issues
-        // tokens for. AddEntityFrameworkStores tells it to persist users and
-        // roles through AppDbContext.
+        // ---------- Identity: users, passwords, roles, login tokens ----------
         builder.Services
             .AddIdentityApiEndpoints<AppUser>(options =>
             {
@@ -58,13 +64,13 @@ public class Program
                 options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = false;
 
-                // Five bad passwords locks the account for five minutes, which
-                // is what makes online password guessing impractical.
+                // Five wrong passwords locks the account for five minutes.
+                // This is what makes guessing passwords impractical.
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
 
-                // No SMTP wired up yet, so requiring confirmation would lock
-                // every new account out. Turn this on once mail is configured.
+                // No email server is set up yet, so requiring confirmation
+                // would lock everyone out. Turn on once email works.
                 options.SignIn.RequireConfirmedEmail = false;
             })
             .AddRoles<AppRole>()
@@ -79,28 +85,32 @@ public class Program
                 options.RefreshTokenExpiration = TimeSpan.FromDays(14);
             });
 
-        // ---------- Authorization ----------
+        // ---------- Authorization rules ----------
+        // A "policy" is just a named rule. Naming them here means controllers
+        // can say [Authorize(Policy = Policies.AdminOnly)] instead of repeating
+        // the rule, and risking a typo, in every file.
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy(Policies.AdminOnly, policy => policy.RequireRole(Roles.Admin))
-            // Any authenticated user. Named so intent reads clearly at the
-            // call site instead of a bare [Authorize].
             .AddPolicy(Policies.AuthenticatedUser, policy => policy.RequireAuthenticatedUser());
 
-        // ---------- Application services ----------
+        // ---------- Our own services ----------
+        // This is the dependency injection setup. Each line says "if any class
+        // asks for one of these, build it for them."
+        //
+        // AddScoped means one instance per HTTP request, which is what you
+        // almost always want for anything that touches the database.
+        //
+        // >>> ADD YOUR NEW SERVICES HERE <<<
         builder.Services.AddScoped<RedisCacheService>();
-        builder.Services.AddScoped<OrganizationService>();
         builder.Services.AddScoped<UserService>();
-        builder.Services.AddScoped<EventService>();
-        builder.Services.AddScoped<EventRegistrationService>();
 
         builder.Services.AddControllers();
         builder.Services.AddProblemDetails();
         builder.Services.AddOpenApi();
 
-        // ---------- CORS (dev only) ----------
-        // In production Caddy serves the React build and the API from the same
-        // origin, so no CORS is needed there. Locally they're on different
-        // ports, so they're different origins.
+        // ---------- CORS, for local development only ----------
+        // The React dev server runs on a different port, which browsers treat
+        // as a different site. This says it is allowed to call us.
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddCors(options =>
@@ -109,6 +119,10 @@ public class Program
                     .AllowAnyHeader()
                     .AllowAnyMethod()));
         }
+
+        // ================================================================
+        // PART 2 — Build the request pipeline
+        // ================================================================
 
         var app = builder.Build();
 
@@ -120,10 +134,10 @@ public class Program
             app.UseHttpsRedirection();
             app.UseCors("dev");
 
-            // Serves the OpenAPI document at /openapi/v1.json
             app.MapOpenApi();
 
-            // Scalar UI at /scalar
+            // A browsable list of every endpoint, at /scalar. Start here when
+            // you want to try the API by hand.
             app.MapScalarApiReference(options => options
                 .WithTitle("GoodDeeds API")
                 .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient));
@@ -134,32 +148,33 @@ public class Program
         // Caddy terminates TLS in front of it. Leaving it on in production
         // produces redirect loops or a startup warning about no HTTPS port.
 
-        // Order matters. Authentication works out who the caller is and must
-        // run before authorization decides what they are allowed to do.
+        // Order matters here. Authentication works out WHO you are; then
+        // authorization decides WHAT you may do. Swapping these two breaks
+        // every [Authorize] attribute in the app.
         app.UseAuthentication();
         app.UseAuthorization();
 
+        // Hooks up everything in the Controllers folder.
         app.MapControllers();
 
-        // ---------- Identity's built-in endpoints ----------
-        // Mounts the endpoints Identity ships with under /api/auth:
+        // ---------- The login endpoints ----------
+        // One line gives us the whole set of account endpoints that ASP.NET
+        // Core Identity ships with, all under /api/auth:
         //   POST /api/auth/register                 create an account
-        //   POST /api/auth/login                    exchange credentials for a token
-        //   POST /api/auth/refresh                  swap a refresh token for a fresh one
-        //   GET  /api/auth/confirmEmail             confirm from an emailed link
+        //   POST /api/auth/login                    get a token
+        //   POST /api/auth/refresh                  get a fresh token
+        //   GET  /api/auth/confirmEmail
         //   POST /api/auth/resendConfirmationEmail
-        //   POST /api/auth/forgotPassword           send a reset code
-        //   POST /api/auth/resetPassword            complete the reset
-        //   POST /api/auth/manage/2fa               configure two-factor auth
+        //   POST /api/auth/forgotPassword
+        //   POST /api/auth/resetPassword
+        //   POST /api/auth/manage/2fa
         //   GET  /api/auth/manage/info              read email and claims
         //   POST /api/auth/manage/info              change email or password
         app.MapGroup("/api/auth")
            .WithTags("Auth")
            .MapIdentityApi<AppUser>();
 
-        // Identity does not ship a logout endpoint. Bearer tokens are
-        // stateless, so the client discards them; this clears the cookie for
-        // callers using the cookie scheme instead.
+        // Identity does not include a logout endpoint, so here is one.
         app.MapPost("/api/auth/logout", async (SignInManager<AppUser> signInManager) =>
         {
             await signInManager.SignOutAsync();
@@ -168,39 +183,44 @@ public class Program
         .RequireAuthorization()
         .WithTags("Auth");
 
-        // Convenience endpoint for a SPA to ask who the caller is.
+        // Handy for the front end: "who am I signed in as?"
         app.MapGet("/api/auth/me", (ClaimsPrincipal principal) => Results.Ok(new
         {
             id = principal.FindFirstValue(ClaimTypes.NameIdentifier),
             email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.Identity?.Name,
-            roles = principal.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray()
+            roles = principal.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
         }))
         .RequireAuthorization()
         .WithTags("Auth");
 
-        // Cheap liveness probe that proves both backing stores are reachable.
+        // A quick way to check both databases are reachable.
         app.MapGet("/health", async (AppDbContext db, RedisCacheService cache) =>
         {
-            var postgresUp = await db.Database.CanConnectAsync();
+            bool postgresUp = await db.Database.CanConnectAsync();
 
-            await cache.SetAsync("health:ping", "pong", TimeSpan.FromSeconds(10));
-            var redisUp = await cache.GetAsync<string>("health:ping") == "pong";
+            await cache.SetAsync("health:ping", "pong");
+            bool redisUp = await cache.GetAsync<string>("health:ping") == "pong";
 
-            var payload = new { postgres = postgresUp, redis = redisUp };
-            return postgresUp && redisUp ? Results.Ok(payload) : Results.Json(payload, statusCode: 503);
+            var result = new { postgres = postgresUp, redis = redisUp };
+
+            return postgresUp && redisUp
+                ? Results.Ok(result)
+                : Results.Json(result, statusCode: 503);
         })
         .AllowAnonymous();
 
-        // Waits for Postgres, applies migrations, then seeds roles and (in
-        // Development) an admin account, so a brand new database comes up ready
-        // to use. See Data/DbInitializer.cs.
+        // Creates the tables and seeds the roles if they are not there yet, so
+        // an empty database just works. See Data/DbInitializer.cs.
         await DbInitializer.InitializeAsync(app);
 
         await app.RunAsync();
     }
 }
 
-/// <summary>Policy names, kept in one place so controllers cannot typo them.</summary>
+/// <summary>
+/// The names of our authorization rules, in one place so a typo becomes a
+/// compiler error instead of a security hole.
+/// </summary>
 public static class Policies
 {
     public const string AdminOnly = "AdminOnly";

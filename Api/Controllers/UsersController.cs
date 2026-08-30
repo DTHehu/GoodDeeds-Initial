@@ -6,77 +6,127 @@ using Microsoft.AspNetCore.Mvc;
 namespace GoodDeedsApi.Controllers;
 
 /// <summary>
-/// Account creation is not here: it belongs to Identity at
-/// POST /api/auth/register. This controller covers reading and maintaining
-/// profiles that already exist.
+/// Endpoints for reading and editing user profiles.
 ///
-/// The whole controller requires a signed-in caller. Individual actions
-/// tighten that further to admin-only, or to "yourself or an admin".
+/// There is no "create user" here on purpose — signing up is handled by
+/// Identity at POST /api/auth/register.
+///
+/// A controller's whole job is HTTP: read the request, call a service, turn
+/// the answer into a status code. The real work lives in UserService.
+/// Use this file as the template for the controllers you write next.
 /// </summary>
 [Route("api/users")]
-[Authorize(Policy = Policies.AuthenticatedUser)]
-public class UsersController(
-    UserService users,
-    EventRegistrationService registrations) : ApiControllerBase
+[Authorize(Policy = Policies.AuthenticatedUser)]   // everything below needs a login
+public class UsersController : ApiControllerBase
 {
-    /// <summary>Listing every account is an administrative view.</summary>
+    private readonly UserService _users;
+
+    // Same dependency injection idea as in UserService: we ask for what we
+    // need, and ASP.NET Core supplies it. Registered in Program.cs.
+    public UsersController(UserService users)
+    {
+        _users = users;
+    }
+
+    /// <summary>GET /api/users — every user. Administrators only.</summary>
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]
-    public async Task<ActionResult<IReadOnlyList<UserDto>>> GetAll(CancellationToken ct) =>
-        Ok(await users.GetAllAsync(ct));
+    public async Task<ActionResult<List<UserDto>>> GetAll()
+    {
+        List<UserDto> users = await _users.GetAllAsync();
+        return Ok(users);
+    }
 
-    /// <summary>The caller's own profile. Convenience wrapper over GetById.</summary>
+    /// <summary>GET /api/users/me — the signed-in user's own profile.</summary>
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> GetMe(CancellationToken ct)
+    public async Task<ActionResult<UserDto>> GetMe()
     {
-        if (CurrentUserId is not { } id) return Unauthorized();
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
 
-        var user = await users.GetByIdAsync(id, ct);
-        return user is null ? NotFound() : Ok(user);
+        UserDto? user = await _users.GetByIdAsync(CurrentUserId.Value);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(user);
     }
 
+    /// <summary>PUT /api/users/me — update your own name and phone number.</summary>
     [HttpPut("me")]
-    public async Task<ActionResult<UserDto>> UpdateMe(
-        [FromBody] UpdateUserRequest request, CancellationToken ct)
+    public async Task<ActionResult<UserDto>> UpdateMe([FromBody] UpdateUserRequest request)
     {
-        if (CurrentUserId is not { } id) return Unauthorized();
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
 
-        var result = await users.UpdateAsync(id, request, ct);
-        return result.Succeeded ? Ok(result.Value) : Failure(result);
+        UserDto? updated = await _users.UpdateAsync(CurrentUserId.Value, request);
+
+        if (updated == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(updated);
     }
 
+    /// <summary>GET /api/users/{id} — one user. Yourself, or anyone if admin.</summary>
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<UserDto>> GetById(Guid id, CancellationToken ct)
+    public async Task<ActionResult<UserDto>> GetById(Guid id)
     {
-        // Without this check any signed-in user could enumerate every account.
-        if (!CanActOnBehalfOf(id)) return Forbid();
+        // Without this check, any signed-in user could read every account.
+        if (!CanActOnBehalfOf(id))
+        {
+            return Forbid();
+        }
 
-        var user = await users.GetByIdAsync(id, ct);
-        return user is null ? NotFound() : Ok(user);
+        UserDto? user = await _users.GetByIdAsync(id);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(user);
     }
 
+    /// <summary>PUT /api/users/{id} — edit a user. Yourself, or anyone if admin.</summary>
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<UserDto>> Update(
-        Guid id, [FromBody] UpdateUserRequest request, CancellationToken ct)
+    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] UpdateUserRequest request)
     {
-        if (!CanActOnBehalfOf(id)) return Forbid();
+        if (!CanActOnBehalfOf(id))
+        {
+            return Forbid();
+        }
 
-        var result = await users.UpdateAsync(id, request, ct);
-        return result.Succeeded ? Ok(result.Value) : Failure(result);
+        UserDto? updated = await _users.UpdateAsync(id, request);
+
+        if (updated == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(updated);
     }
 
+    /// <summary>DELETE /api/users/{id} — administrators only.</summary>
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policies.AdminOnly)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct) =>
-        await users.DeleteAsync(id, ct) ? NoContent() : NotFound();
-
-    /// <summary>Every event this user is signed up for, excluding cancellations.</summary>
-    [HttpGet("{id:guid}/events")]
-    public async Task<ActionResult<IReadOnlyList<EventDto>>> GetEvents(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        if (!CanActOnBehalfOf(id)) return Forbid();
+        bool deleted = await _users.DeleteAsync(id);
 
-        var result = await registrations.GetEventsForUserAsync(id, ct);
-        return result.Succeeded ? Ok(result.Value) : Failure(result);
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        // 204 No Content: it worked, and there is nothing to send back.
+        return NoContent();
     }
 }
