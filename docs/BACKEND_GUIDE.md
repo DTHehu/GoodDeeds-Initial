@@ -3,9 +3,6 @@
 Everything that was added to the API, and why. Written for someone comfortable
 programming but new to C#, Entity Framework, dependency injection, or Redis.
 
-> A formatted version of this document is published as an Artifact:
-> <https://claude.ai/code/artifact/f4fefb98-0047-4e05-a76f-7002a3cc8e52>
-
 **Stack:** .NET 10 · ASP.NET Core · EF Core 10 · PostgreSQL 16 · Redis 7 · ASP.NET Core Identity
 
 ---
