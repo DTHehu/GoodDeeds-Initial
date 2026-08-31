@@ -1,11 +1,9 @@
-import { useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
-import './App.css'
+import './Home.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+function Home() {
 
   return (
     <>
@@ -16,18 +14,28 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1>Get started</h1>
+          <h1>Volunteering Made Easy!</h1>
           <p>
             Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+
+        <div>
+          <button
+            type="button"
+            className="counter"
+          >
+            Login as Volunteer
+          </button>
+
+          <button
+            type="button"
+            className="counter"
+          >
+            Login as Organisation
+          </button>
+        </div>
+
       </section>
 
       <div className="ticks"></div>
@@ -119,4 +127,4 @@ function App() {
   )
 }
 
-export default App
+export default Home
