@@ -7,6 +7,7 @@ function Home() {
 
   return (
     <>
+      <section id="spacer"></section>
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
@@ -16,7 +17,10 @@ function Home() {
         <div>
           <h1>Volunteering Made Easy!</h1>
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            Find Your Passion. Make an Impact.   
+          </p>
+          <p>
+            Discover volunteer opportunities and learn how you can make an impact in causes you care about.
           </p>
         </div>
 
@@ -27,7 +31,7 @@ function Home() {
           >
             Login as Volunteer
           </button>
-
+          
           <button
             type="button"
             className="counter"
