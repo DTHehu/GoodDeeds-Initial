@@ -32,7 +32,7 @@ public class UserService
             return cached;
         }
 
-        UserDto? user = await BuildUserQuery(_db.Users.Where(u => u.Id == id))
+        UserDto? user = await BuildUserQuery(_db.Users.Where(userInstance => userInstance.Id == id))
             .FirstOrDefaultAsync();
 
         if (user == null)

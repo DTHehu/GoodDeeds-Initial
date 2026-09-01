@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GoodDeedsApi.Data;
 using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
@@ -19,7 +20,7 @@ namespace GoodDeedsApi.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly UserService _users;
-
+    
     public UsersController(UserService users)
     {
         _users = users;
