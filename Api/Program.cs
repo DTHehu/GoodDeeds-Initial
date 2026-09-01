@@ -6,6 +6,7 @@ using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 namespace GoodDeedsApi;
 
@@ -73,7 +74,32 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddProblemDetails();
-        builder.Services.AddOpenApi();
+        // Declares the bearer scheme so Swagger UI shows an Authorize button and
+        // sends the token with every request.
+        builder.Services.AddOpenApi(options =>
+            options.AddDocumentTransformer((document, context, ct) =>
+            {
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
+                {
+                    ["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        Description = "Paste the accessToken from POST /api/auth/login."
+                    }
+                };
+
+                document.Security =
+                [
+                    new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+                    }
+                ];
+
+                return Task.CompletedTask;
+            }));
 
         if (builder.Environment.IsDevelopment())
         {
