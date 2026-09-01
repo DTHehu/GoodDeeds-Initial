@@ -2,10 +2,13 @@ using System.Security.Claims;
 using GoodDeedsApi.Data;
 using GoodDeedsApi.Identity;
 using GoodDeedsApi.Models;
+using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace GoodDeedsApi;
@@ -48,9 +51,6 @@ public class Program
 
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-
-                // Turn on once SMTP is configured, or new accounts cannot sign in.
-                options.SignIn.RequireConfirmedEmail = false;
             })
             .AddRoles<AppRole>()
             .AddUserManager<AppUserManager>()
@@ -137,20 +137,78 @@ public class Program
 
         app.MapControllers();
 
-        // register, login, refresh, confirmEmail, resendConfirmationEmail,
-        // forgotPassword, resetPassword, manage/2fa, manage/info.
-        app.MapGroup("/api/auth")
-           .WithTags("Auth")
-           .MapIdentityApi<AppUser>();
-        
-        app.MapGet("/api/auth/me", (ClaimsPrincipal principal) => Results.Ok(new
+        // Identity's MapIdentityApi is deliberately not used: it is all or
+        // nothing, and would also map email confirmation, password reset and
+        // two-factor endpoints that this project has no mail server for.
+        RouteGroupBuilder auth = app.MapGroup("/api/auth").WithTags("Auth");
+
+        auth.MapPost("/register", async (RegisterRequest request, UserManager<AppUser> userManager) =>
+        {
+            AppUser user = new() { UserName = request.Email, Email = request.Email };
+
+            IdentityResult result = await userManager.CreateAsync(user, request.Password);
+
+            if (!result.Succeeded)
+            {
+                return Results.ValidationProblem(result.Errors.ToDictionary(
+                    error => error.Code,
+                    error => new[] { error.Description }));
+            }
+
+            return Results.Ok();
+        })
+        .AllowAnonymous();
+
+        auth.MapPost("/login", async (LoginRequest request, SignInManager<AppUser> signInManager) =>
+        {
+            // Issue a bearer token rather than setting a cookie.
+            signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
+
+            SignInResult result = await signInManager.PasswordSignInAsync(
+                request.Email, request.Password, isPersistent: false, lockoutOnFailure: true);
+
+            if (!result.Succeeded)
+            {
+                return Results.Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            // The sign-in above already wrote the token JSON to the response.
+            return Results.Empty;
+        })
+        .AllowAnonymous();
+
+        auth.MapPost("/refresh", async (
+            RefreshRequest request,
+            SignInManager<AppUser> signInManager,
+            IOptionsMonitor<BearerTokenOptions> bearerOptions) =>
+        {
+            ISecureDataFormat<AuthenticationTicket> protector =
+                bearerOptions.Get(IdentityConstants.BearerScheme).RefreshTokenProtector;
+
+            AuthenticationTicket? ticket = protector.Unprotect(request.RefreshToken);
+
+            // ValidateSecurityStampAsync also rejects tokens issued before a
+            // password change.
+            if (ticket?.Properties?.ExpiresUtc is not { } expiresUtc
+                || DateTimeOffset.UtcNow >= expiresUtc
+                || await signInManager.ValidateSecurityStampAsync(ticket.Principal) is not AppUser user)
+            {
+                return Results.Unauthorized();
+            }
+
+            ClaimsPrincipal principal = await signInManager.CreateUserPrincipalAsync(user);
+
+            return Results.SignIn(principal, authenticationScheme: IdentityConstants.BearerScheme);
+        })
+        .AllowAnonymous();
+
+        auth.MapGet("/me", (ClaimsPrincipal principal) => Results.Ok(new
         {
             id = principal.FindFirstValue(ClaimTypes.NameIdentifier),
             email = principal.FindFirstValue(ClaimTypes.Email) ?? principal.Identity?.Name,
             roles = principal.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
         }))
-        .RequireAuthorization()
-        .WithTags("Auth");
+        .RequireAuthorization();
 
         app.MapGet("/health", async (AppDbContext db, RedisCacheService cache) =>
         {
