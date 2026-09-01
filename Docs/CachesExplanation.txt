@@ -1,0 +1,41 @@
+Program.cs is the entry point of the whole api program.
+
+You can see the main method.
+
+Starts by creating a builder variable which is basically telling .Net what kind of service we are building and registers some configerations for us that are built for web services. Such as, reading the appsettings.json information so we can access builder.Configuration stuff. As well as setting up the Logger already so we don't have to register it ourselves.
+
+AddDbContext<AppDbContext>
+This whole block is registering a service in the .Net runtime that connects our program to our postgres database.
+The <> characters are telling the builder (through a generic type parameter) the class of our dbContext. Then for options, we can pass in a lambda function (basically a in line method) that sets the db options (which are passed into the function) and runs methods on that options variable to set them.
+Now, for the registration, it's technically "scoped" which means there is a new instance created per api call rather than a single db connection throughout the entire api.
+
+AddStackExchangeRedisCache:
+Similar structure to the postgres db connection, just this time setting up redis. The goal being redis to be the main thing the api queries and then using the postgres db as a fallback.
+
+AddIdentityApiEndpoints:
+Again, the <AppUser> is to pass in a class register as the model for our users.
+Modifying the user options via a lambda function.
+Then after the lambda function, we are doing more operations on the service.
+Such as, Adding user roles (like admin or member to help us with debugging)
+The AddUserManager is letting us override some functions defaulted to the normal
+UserManager class by us passing in our own class, AppUserManager.
+
+Configure<BearerTokenOptions> lets us set how our Authentication Tokens will be configured and expired.
+We will be using Bearer Tokens for our api calls to validate users throughout the site.
+This actually uses something called an "Options Pattern"
+
+AddAuthorizationBuilder()
+Basically maps Authorization requirments like [Authorize(Policy = Admin)] to policy methods and if the endpoint user accessing it does not meet that policy, their call gets rejected by .NET
+
+AddScoped...
+This is where we add our services to the DI container, so anywhere in our program we can just ask for one instead of building it ourselves.
+These are registered as Scoped, which means: for one single request coming into the app, there's exactly one copy of that service — shared by everything in that request that asks for it — and it gets thrown away once the request is done. So if a controller and the service it calls both need the same AppDbContext, they get the exact same one, not two separate copies. A different request happening at the same time gets its own fresh set.
+If you look at these services' constructors, you'll see they list what they need. The benefit of DI is we don't have to build those pieces ourselves and hand them in — .NET does that part. We just say "I need this service" in our own constructor, and .NET builds the whole chain of stuff behind it and hands us the finished thing.
+
+AddControllers is just configuring our controller classes
+AddProblemDetails just adds some fucntionality to our api errors so that we can see exactly why the endpoint failed.
+AddOpenApi sets up something called Swagger so that we can more easily test endpoints with a webui
+
+The IsDevelopment check is just checking if we are in a debugger or not and if so, will set up cors (Cross Origin Requests) to allow all so we can call the api from anywhere
+
+
