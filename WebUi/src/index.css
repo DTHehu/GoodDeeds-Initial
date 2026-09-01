@@ -1,111 +1,174 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+@import "tailwindcss";
 
 body {
-  margin: 0;
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/*Home*/
+.home-page {
+    @apply min-h-screen bg-[#f5f7fa] text-[#333];
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/*Navigation*/
+.navbar {
+    @apply flex items-center justify-between bg-white px-10 py-5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+.navbar h1 {
+    @apply m-0 text-[#2e8b57];
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.nav-links {
+    @apply flex gap-5;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.nav-links a {
+    @apply text-[#333] no-underline;
 }
+
+.nav-links a:hover {
+    @apply text-[#2e8b57];
+}
+
+
+/*About and Welcome*/
+
+.about {
+    @apply bg-white px-5 py-[60px] text-center;
+}
+
+.about h2 {
+    @apply mb-[15px] text-[40px];
+}
+
+.about p {
+    @apply mx-auto mb-0 max-w-[600px] text-[18px] leading-[1.5] text-black;
+}
+
+/*Login*/
+.login-options {
+    @apply bg-[#f5f7fa] px-5 py-[60px] text-center;
+}
+
+.login-options h2 {
+    @apply mb-[10px];
+}
+
+.login-options > p {
+    @apply mb-[35px] text-[#666];
+}
+
+.login-cards {
+    @apply mx-auto flex max-w-[800px] justify-center gap-[25px];
+}
+
+.login-card {
+    @apply max-w-[350px] flex-1 rounded-xl bg-white p-[30px];
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.login-card h3 {
+    @apply mb-[15px] text-[#2e8b57];
+}
+
+.login-card p {
+    @apply mb-[25px] leading-[1.5] text-[#555];
+}
+
+.primary-button {
+    @apply inline-block rounded-lg bg-[#2e8b57] px-5 py-3 font-semibold text-white no-underline;
+}
+
+.primary-button:hover {
+    @apply bg-[#267349];
+}
+
+.login-page {
+    @apply flex min-h-screen items-center justify-center bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] font-sans;
+}
+
+.login-container {
+    @apply m-5 w-full max-w-[400px] rounded-xl bg-white p-[30px];
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.login-container h1 {
+    @apply mb-[30px] text-center text-[28px] text-[#333];
+}
+
+.login-form {
+    @apply flex flex-col gap-[18px];
+}
+
+.login-form label {
+    @apply -mb-[10px] text-[14px] font-semibold text-[#444];
+}
+
+.login-form input {
+    @apply box-border w-full rounded-lg border border-[#ccc] px-[14px] py-3 text-[15px] outline-none;
+}
+
+.login-form input:focus {
+    @apply border-[#2e8b57];
+    box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
+}
+
+.login-button {
+    @apply mt-2 cursor-pointer rounded-lg border-0 bg-[#2e8b57] p-[13px] text-[16px] font-semibold text-white;
+}
+
+.login-button:hover {
+    @apply bg-[#267349];
+}
+
+.forgot-password {
+    @apply -mt-2 text-right;
+}
+
+.forgot-password a {
+    @apply text-[14px] text-[#2e8b57] no-underline;
+}
+
+.forgot-password a:hover {
+    @apply underline;
+}
+
+.signup-text {
+    @apply mt-[25px] text-center text-[14px] text-[#666];
+}
+
+.signup-text a {
+    @apply font-semibold text-[#2e8b57] no-underline;
+}
+
+.signup-text a:hover {
+    @apply underline;
+}
+
+
+/* 
+
+@media (max-width: 600px) {
+
+    .navbar {
+        @apply px-5;
+    }
+
+    .nav-links {
+        @apply gap-2.5;
+    }
+
+    .login-cards {
+        @apply flex-col items-center;
+    }
+
+    .login-card {
+        @apply w-full box-border;
+    }
+
+    .about h2 {
+        @apply text-[32px];
+    }
+}*/

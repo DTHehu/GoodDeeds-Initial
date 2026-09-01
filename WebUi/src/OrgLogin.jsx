@@ -1,10 +1,11 @@
-import "./Login.css"
+import { Link } from 'react-router-dom'
+import './index.css'
 
 function OrgLogin() {
     return (
         <div className="login-page">
             <div className="login-container">
-                <h1>Welcome Back Organisation</h1>
+                <h1>Welcome Back Organization</h1>
 
                 <form className="login-form">
                     <label htmlFor="email">Email</label>

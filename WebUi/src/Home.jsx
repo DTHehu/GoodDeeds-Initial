@@ -1,133 +1,69 @@
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './Home.css'
+import { Link } from 'react-router-dom'
+import "./index.css"
 
 function Home() {
-
   return (
-    <>
-      <section id="spacer"></section>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Volunteering Made Easy!</h1>
-          <p>
-            Find Your Passion. Make an Impact.   
-          </p>
-          <p>
-            Discover volunteer opportunities and learn how you can make an impact in causes you care about.
-          </p>
+    <div className="home-page">
+
+      <nav className="navbar">
+        <div className="nav-links">
+          <Link to="/">Volunteering.com</Link>
         </div>
 
-        <div>
-          <button
-            type="button"
-            className="counter"
-          >
-            Login as Volunteer
-          </button>
-          
-          <button
-            type="button"
-            className="counter"
-          >
-            Login as Organisation
-          </button>
+        <div className="nav-links">
+          <Link to="/vol-login">Volunteer Login</Link>
+          <Link to="/org-login">Organization Login</Link>
         </div>
+      </nav>
 
+      <section className="about">
+        <h2>Volunteering Made Easy</h2>
+
+        <p>
+          Connect with organizations and find opportunities
+          to make a difference in your community.
+        </p>
       </section>
 
-      <div className="ticks"></div>
+      <section className="login-options">
+        <h2>Welcome to GoodDeeds</h2>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+        <p>Choose how you would like to use GoodDeeds.</p>
+
+        <div className="login-cards">
+
+          {/* Volunteer */}
+          <div className="login-card">
+            <h3>Volunteer</h3>
+
+            <p>
+              Find volunteer opportunities and make a difference
+              in your community.
+            </p>
+
+            <Link to="/vol-login" className="primary-button">
+              Volunteer Login
+            </Link>
+          </div>
+
+          {/* Organization */}
+          <div className="login-card">
+            <h3>Organization</h3>
+
+            <p>
+              Create volunteer opportunities and connect with
+              people who want to help.
+            </p>
+
+            <Link to="/org-login" className="primary-button">
+              Organization Login
+            </Link>
+          </div>
+
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </div>
   )
 }
 
