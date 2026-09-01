@@ -142,9 +142,7 @@ public class Program
         app.MapGroup("/api/auth")
            .WithTags("Auth")
            .MapIdentityApi<AppUser>();
-
-        // No logout endpoint: bearer tokens are stateless, so the client logs
-        // out by discarding its token.
+        
         app.MapGet("/api/auth/me", (ClaimsPrincipal principal) => Results.Ok(new
         {
             id = principal.FindFirstValue(ClaimTypes.NameIdentifier),
