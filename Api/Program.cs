@@ -2,7 +2,6 @@ using System.Security.Claims;
 using GoodDeedsApi.Data;
 using GoodDeedsApi.Identity;
 using GoodDeedsApi.Models;
-using GoodDeedsApi.OpenApi;
 using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
@@ -74,11 +73,7 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddProblemDetails();
-        builder.Services.AddOpenApi(options =>
-        {
-            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-            options.AddOperationTransformer<BearerSecurityRequirementTransformer>();
-        });
+        builder.Services.AddOpenApi();
 
         if (builder.Environment.IsDevelopment())
         {

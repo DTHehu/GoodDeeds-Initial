@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,9 +13,10 @@ namespace GoodDeedsApi.Controllers;
 /// The class-level policy must be the loosest rule any action needs: [Authorize]
 /// attributes combine with AND, so an action cannot widen what the class sets.
 /// </summary>
+[ApiController]
 [Route("api/users")]
 [Authorize(Policy = Policies.AuthenticatedUser)]
-public class UsersController : ApiControllerBase
+public class UsersController : ControllerBase
 {
     private readonly UserService _users;
 
@@ -21,6 +24,17 @@ public class UsersController : ApiControllerBase
     {
         _users = users;
     }
+
+    /// <summary>
+    /// Read from the token, so it cannot be forged. Prefer this over any user id
+    /// taken from a request body.
+    /// </summary>
+    private Guid? CurrentUserId =>
+        Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
+
+    /// <summary>True when acting on yourself, or an admin acting on anyone.</summary>
+    private bool CanActOnBehalfOf(Guid userId) =>
+        User.IsInRole(Roles.Admin) || CurrentUserId == userId;
 
     [HttpGet]
     [Authorize(Policy = Policies.AdminOnly)]

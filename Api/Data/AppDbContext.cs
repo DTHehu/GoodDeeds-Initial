@@ -12,14 +12,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Event> Events => Set<Event>();
     public DbSet<EventRegistration> EventRegistrations => Set<EventRegistration>();
 
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-    {
-        base.ConfigureConventions(configurationBuilder);
-
-        configurationBuilder.Properties<DateTimeOffset>()
-            .HaveConversion<UtcDateTimeOffsetConverter>();
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Maps the Identity types onto tables. Must run first.
