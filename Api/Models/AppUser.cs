@@ -10,6 +10,8 @@ public class AppUser : IdentityUser<Guid>
 {
     public string Name { get; set; } = null!;
 
+    public Guid? OrganizationId { get; set; } = null;
+    
     public DateTimeOffset CreatedAt { get; set; }
 
     public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();

@@ -3,7 +3,7 @@ namespace GoodDeedsApi.Models;
 public class Organization
 {
     public Guid Id { get; set; }
-
+    
     public string Name { get; set; } = null!;
 
     public string ContactEmail { get; set; } = null!;
