@@ -143,15 +143,8 @@ public class Program
            .WithTags("Auth")
            .MapIdentityApi<AppUser>();
 
-        // Identity ships no logout endpoint.
-        app.MapPost("/api/auth/logout", async (SignInManager<AppUser> signInManager) =>
-        {
-            await signInManager.SignOutAsync();
-            return Results.NoContent();
-        })
-        .RequireAuthorization()
-        .WithTags("Auth");
-
+        // No logout endpoint: bearer tokens are stateless, so the client logs
+        // out by discarding its token.
         app.MapGet("/api/auth/me", (ClaimsPrincipal principal) => Results.Ok(new
         {
             id = principal.FindFirstValue(ClaimTypes.NameIdentifier),
