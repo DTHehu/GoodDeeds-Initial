@@ -9,10 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-// ControllerBase.SignIn also returns a type called SignInResult, so the
-// Identity one needs a distinct name.
-using IdentitySignInResult = Microsoft.AspNetCore.Identity.SignInResult;
-
 namespace GoodDeedsApi.Controllers;
 
 /// <summary>
@@ -53,11 +49,17 @@ public class AuthController : ControllerBase
             Name = request.Name.Trim()
         };
 
-        IdentityResult created = await _userManager.CreateAsync(user, request.Password);
+        var created = await _userManager.CreateAsync(user, request.Password);
 
         if (!created.Succeeded)
         {
-            return IdentityErrors(created.Errors);
+            // Surfaces the real reason: password too short, email taken, and so on.
+            foreach (var error in created.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return ValidationProblem(ModelState);
         }
 
         return Ok();
@@ -84,7 +86,7 @@ public class AuthController : ControllerBase
         // Issue a bearer token rather than setting a cookie.
         _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
 
-        IdentitySignInResult signIn = await _signInManager.PasswordSignInAsync(
+        var signIn = await _signInManager.PasswordSignInAsync(
             request.Email, request.Password, isPersistent: false, lockoutOnFailure: true);
 
         if (!signIn.Succeeded)
@@ -129,16 +131,5 @@ public class AuthController : ControllerBase
             email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name,
             roles = User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
         });
-    }
-
-    /// <summary>Turns Identity's error list into a 400 with the same shape as model validation.</summary>
-    private ActionResult IdentityErrors(IEnumerable<IdentityError> errors)
-    {
-        foreach (IdentityError error in errors)
-        {
-            ModelState.AddModelError(error.Code, error.Description);
-        }
-
-        return ValidationProblem(ModelState);
     }
 }
