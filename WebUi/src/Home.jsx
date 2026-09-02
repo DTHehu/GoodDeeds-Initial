@@ -1,70 +1,59 @@
-import { Link } from 'react-router-dom'
-import "./index.css"
+import { Link } from 'react-router-dom' 
+import "./index.css" 
 
-function Home() {
-  return (
-    <div className="home-page">
+function Home() { 
+  return ( 
+    <div className="home-page"> 
 
-      <nav className="navbar">
-        <div className="nav-links">
-          <Link to="/">Volunteering.com</Link>
-        </div>
+      {/*Navbar*/} 
+      <nav className="navbar"> 
+        <div className="nav-links"> 
+          <Link to="/">GoodDeads</Link> 
+        </div> 
+        <div className="nav-links"> 
+          <Link to="/login">Login</Link> 
+          <Link to="/register">Register</Link> 
+        </div> 
+      </nav> 
 
-        <div className="nav-links">
-          <Link to="/vol-login">Volunteer Login</Link>
-          <Link to="/org-login">Organization Login</Link>
-        </div>
-      </nav>
 
-      <section className="about">
-        <h2>Volunteering Made Easy</h2>
+      {/*About Section*/} 
+      <section className="about"> 
+        <h2>Volunteering Made Easy</h2> 
+        <p> 
+          Connect with organizations and find opportunities 
+          to make a difference in your community. 
+        </p> 
+      </section> 
 
-        <p>
-          Connect with organizations and find opportunities
-          to make a difference in your community.
-        </p>
-      </section>
+      {/*Information Section*/} 
+      <section className="info-container"> 
+        <h2>Welcome to GoodDeeds</h2> 
+        <p>Choose how you would like to use GoodDeeds.</p> 
 
-      <section className="login-options">
-        <h2>Welcome to GoodDeeds</h2>
+        <div className="info-cards"> 
 
-        <p>Choose how you would like to use GoodDeeds.</p>
+          {/*Volunteer*/} 
+          <div className="info-card"> 
+            <h3>Volunteer</h3> 
+            <p> 
+              Find volunteer opportunities and make a difference in your community. 
+            </p> 
+          </div> 
 
-        <div className="login-cards">
-
-          {/* Volunteer */}
-          <div className="login-card">
-            <h3>Volunteer</h3>
-
-            <p>
-              Find volunteer opportunities and make a difference
-              in your community.
-            </p>
-
-            <Link to="/vol-login" className="primary-button">
-              Volunteer Login
-            </Link>
+          {/*Organization*/} 
+          <div className="info-card"> 
+            <h3>Organization</h3> 
+            <p> 
+              Create volunteer opportunities and connect with people who want to help. 
+            </p> 
           </div>
+          
+        </div> 
 
-          {/* Organization */}
-          <div className="login-card">
-            <h3>Organization</h3>
+      </section> 
+    </div> 
+  ) 
+} 
 
-            <p>
-              Create volunteer opportunities and connect with
-              people who want to help.
-            </p>
-
-            <Link to="/org-login" className="primary-button">
-              Organization Login
-            </Link>
-          </div>
-
-        </div>
-      </section>
-
-    </div>
-  )
-}
-
-export default Home
+export default Home 
