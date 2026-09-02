@@ -1,6 +1,7 @@
 using GoodDeedsApi.Data;
 using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace GoodDeedsApi.Services;
@@ -37,6 +38,27 @@ public class EventService
         }
 
         return eventsDtos;
+    }
+
+    public async Task<EventDto> GetEventById(Guid eventId)
+    {
+        var eventEntity = await _db.Events.FindAsync(eventId);
+        if (eventEntity == null)
+        {
+            return null;
+        }
+
+        return new EventDto()
+        {
+            Id = eventEntity.Id,
+            CreatedAt = eventEntity.CreatedAt,
+            Description = eventEntity.Description,
+            EndTime = eventEntity.EndTime,
+            Location = eventEntity.Location,
+            OrganizationId = eventEntity.OrganizationId,
+            StartTime = eventEntity.StartTime,
+            Title = eventEntity.Title
+        };
     }
     public async Task<EventDto> CreateEvent(EventDto eventDto, Guid userId)
     {

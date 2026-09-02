@@ -29,6 +29,18 @@ public class EventsController : ControllerBase
         return Ok(eventDtos);
     }
     
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetEventById(Guid id)
+    {
+        var eventDto = await _events.GetEventById(id);
+        if (eventDto == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(eventDto);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto)
     {
@@ -38,7 +50,7 @@ public class EventsController : ControllerBase
         }
 
         var createdEvent = await _events.CreateEvent(eventDto, CurrentUserId.Value);
-        
-        return CreatedAtAction(nameof(GetEvents), new { id = createdEvent.Id }, createdEvent);
+
+        return CreatedAtAction(nameof(GetEventById), new { id = createdEvent.Id }, createdEvent);
     }
 }
