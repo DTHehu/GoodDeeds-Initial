@@ -23,19 +23,16 @@ public class OrganizationService
     /// written in one transaction, so a failure part way through leaves neither
     /// behind.
     ///
-    /// Returns the organization on success, or the reason it failed.
+    /// False means the contact email was taken, the login email was taken, or
+    /// the password was rejected.
     /// </summary>
-    public async Task<(IdentityResult Result, Organization? Organization)> RegisterAsync(
-        OrganizationRegisterRequest request)
+    public async Task<bool> RegisterAsync(OrganizationRegisterRequest request)
     {
         string contactEmail = request.ContactEmail.Trim().ToLowerInvariant();
 
-        // Checked up front so a duplicate returns a readable message instead of
-        // a unique-index violation from the database.
         if (await _db.Organizations.AnyAsync(org => org.ContactEmail == contactEmail))
         {
-            return (Failed("DuplicateOrganizationEmail",
-                $"An organization with contact email '{contactEmail}' already exists."), null);
+            return false;
         }
 
         await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
@@ -47,12 +44,10 @@ public class OrganizationService
             Name = request.Name.Trim()
         };
 
-        IdentityResult created = await _userManager.CreateAsync(owner, request.Password);
-
-        if (!created.Succeeded)
+        if (!(await _userManager.CreateAsync(owner, request.Password)).Succeeded)
         {
             // Leaving without committing rolls the user insert back.
-            return (created, null);
+            return false;
         }
 
         Organization organization = new()
@@ -73,9 +68,6 @@ public class OrganizationService
         await _db.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        return (IdentityResult.Success, organization);
+        return true;
     }
-
-    private static IdentityResult Failed(string code, string description) =>
-        IdentityResult.Failed(new IdentityError { Code = code, Description = description });
 }

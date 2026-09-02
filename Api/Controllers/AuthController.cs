@@ -48,9 +48,14 @@ public class AuthController : ControllerBase
     {
         AppUser user = new() { UserName = request.Email, Email = request.Email };
 
-        IdentityResult result = await _userManager.CreateAsync(user, request.Password);
+        IdentityResult created = await _userManager.CreateAsync(user, request.Password);
 
-        return result.Succeeded ? Ok() : IdentityErrors(result);
+        if (!created.Succeeded)
+        {
+            return IdentityErrors(created.Errors);
+        }
+
+        return Ok();
     }
 
     /// <summary>Creates an organization and the account that owns it.</summary>
@@ -58,19 +63,13 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> RegisterOrg([FromBody] OrganizationRegisterRequest request)
     {
-        (IdentityResult result, Organization? organization) = await _organizations.RegisterAsync(request);
-
-        if (!result.Succeeded)
+        if (!await _organizations.RegisterAsync(request))
         {
-            return IdentityErrors(result);
+            return BadRequest("Could not register the organization. The login email or "
+                + "contact email may already be in use, or the password was rejected.");
         }
 
-        return Ok(new
-        {
-            organizationId = organization!.Id,
-            name = organization.Name,
-            contactEmail = organization.ContactEmail
-        });
+        return Ok();
     }
 
     [HttpPost("login")]
@@ -80,12 +79,12 @@ public class AuthController : ControllerBase
         // Issue a bearer token rather than setting a cookie.
         _signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
 
-        IdentitySignInResult result = await _signInManager.PasswordSignInAsync(
+        IdentitySignInResult signIn = await _signInManager.PasswordSignInAsync(
             request.Email, request.Password, isPersistent: false, lockoutOnFailure: true);
 
-        if (!result.Succeeded)
+        if (!signIn.Succeeded)
         {
-            return Problem(result.ToString(), statusCode: StatusCodes.Status401Unauthorized);
+            return Problem(signIn.ToString(), statusCode: StatusCodes.Status401Unauthorized);
         }
 
         // The sign-in above already wrote the token JSON to the response.
@@ -117,17 +116,20 @@ public class AuthController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public IActionResult Me() => Ok(new
+    public IActionResult Me()
     {
-        id = User.FindFirstValue(ClaimTypes.NameIdentifier),
-        email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name,
-        roles = User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
-    });
+        return Ok(new
+        {
+            id = User.FindFirstValue(ClaimTypes.NameIdentifier),
+            email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name,
+            roles = User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
+        });
+    }
 
     /// <summary>Turns Identity's error list into a 400 with the same shape as model validation.</summary>
-    private ActionResult IdentityErrors(IdentityResult result)
+    private ActionResult IdentityErrors(IEnumerable<IdentityError> errors)
     {
-        foreach (IdentityError error in result.Errors)
+        foreach (IdentityError error in errors)
         {
             ModelState.AddModelError(error.Code, error.Description);
         }
