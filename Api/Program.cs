@@ -71,6 +71,8 @@ public class Program
         // Add new services here.
         builder.Services.AddScoped<RedisCacheService>();
         builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<OrganizationService>();
+        builder.Services.AddScoped<EventService>();
 
         builder.Services.AddControllers();
         builder.Services.AddProblemDetails();
@@ -158,6 +160,25 @@ public class Program
             return Results.Ok();
         })
         .AllowAnonymous();
+        
+        auth.MapPost("/registerOrg", async (OrganizationRegisterRequest request, UserManager<AppUser> userManager, OrganizationService organizationService) =>
+            {
+                AppUser user = new() { UserName = request.Email, Email = request.Email };
+
+                IdentityResult result = await userManager.CreateAsync(user, request.Password);
+
+                await organizationService.RegisterOrg(request, new Guid(""));
+                
+                if (!result.Succeeded)
+                {
+                    return Results.ValidationProblem(result.Errors.ToDictionary(
+                        error => error.Code,
+                        error => new[] { error.Description }));
+                }
+
+                return Results.Ok();
+            })
+            .AllowAnonymous();
 
         auth.MapPost("/login", async (LoginRequest request, SignInManager<AppUser> signInManager) =>
         {
