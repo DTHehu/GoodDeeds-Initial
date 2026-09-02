@@ -34,7 +34,7 @@ public class UserService
         }
 
         var organizationId = user.OrganizationId;
-        var organizationDto = new OrganizationDto();
+        OrganizationDto? organizationDto = null;
         if (organizationId != null)
         {
             var organizationEntity = await _db.Organizations.FirstOrDefaultAsync(organization => organization.Id == organizationId);

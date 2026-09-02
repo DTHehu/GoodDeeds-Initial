@@ -27,5 +27,15 @@ public class EventsController : ControllerBase
         
         return Ok(eventDtos);
     }
-    
+
+    [HttpGet("events/{id}")]
+    public async Task<IActionResult> GetEvent([FromRoute] Guid id)
+    {
+        var eventDto = await _events.GetEventById(id);
+
+        if (eventDto == null)
+            return NotFound();
+
+        return Ok(eventDto);
+    }
 }
