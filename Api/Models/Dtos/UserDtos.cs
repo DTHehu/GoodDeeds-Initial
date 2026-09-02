@@ -9,7 +9,18 @@ public record UserDto(
     string Email,
     string? PhoneNumber,
     DateTimeOffset CreatedAt,
-    List<string> Roles);
+    OrganizationDto? Organization);
+
+public class OrganizationDto
+{
+    public Guid Id { get; set; }
+    public  string Name { get; set; }
+    public  string ContactEmail { get; set; }
+    public  string? PhoneNumber { get; set; }
+    public  DateTimeOffset CreatedAt { get; set; }
+    public string Description { get; set; }
+    
+}
 
 public record UpdateUserRequest(
     [Required]

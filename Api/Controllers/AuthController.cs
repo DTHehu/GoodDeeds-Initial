@@ -4,6 +4,7 @@ using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -23,17 +24,20 @@ public class AuthController : ControllerBase
     private readonly SignInManager<AppUser> _signInManager;
     private readonly OrganizationService _organizations;
     private readonly IOptionsMonitor<BearerTokenOptions> _bearerOptions;
+    private readonly UserService _userService;
 
     public AuthController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         OrganizationService organizations,
-        IOptionsMonitor<BearerTokenOptions> bearerOptions)
+        IOptionsMonitor<BearerTokenOptions> bearerOptions,
+        UserService userService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _organizations = organizations;
         _bearerOptions = bearerOptions;
+        _userService = userService;
     }
 
     /// <summary>Creates a volunteer account.</summary>
@@ -119,9 +123,9 @@ public class AuthController : ControllerBase
         return SignIn(principal, IdentityConstants.BearerScheme);
     }
 
-    [HttpGet("me")]
+    [HttpGet("meToken")]
     [Authorize]
-    public IActionResult Me()
+    public IActionResult MeToken()
     {
         return Ok(new
         {
@@ -129,5 +133,21 @@ public class AuthController : ControllerBase
             email = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name,
             roles = User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
         });
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> Me()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+        
+        var user = await _userService.GetByIdAsync(new Guid(userId));
+
+        if (user == null)
+            return NotFound();
+        
+        return Ok(user);
     }
 }

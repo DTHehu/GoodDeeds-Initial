@@ -16,12 +16,6 @@ public class UserService
         _cache = cache;
     }
 
-    public async Task<List<UserDto>> GetAllAsync()
-    {
-        return await BuildUserQuery(_db.Users.OrderBy(user => user.Name))
-            .ToListAsync();
-    }
-
     public async Task<UserDto?> GetByIdAsync(Guid id)
     {
         var cacheKey = $"user:{id}";
@@ -32,17 +26,38 @@ public class UserService
             return cached;
         }
 
-        var user = await BuildUserQuery(_db.Users.Where(userInstance => userInstance.Id == id))
-            .FirstOrDefaultAsync();
+        var user = await _db.Users.Where(userInstance => userInstance.Id == id).FirstOrDefaultAsync();
 
         if (user == null)
         {
             return null;
         }
 
-        await _cache.SetAsync(cacheKey, user);
+        var organizationId = user.OrganizationId;
+        var organizationDto = new OrganizationDto();
+        if (organizationId != null)
+        {
+            var organizationEntity = await _db.Organizations.FirstOrDefaultAsync(organization => organization.Id == organizationId);
 
-        return user;
+            if (organizationEntity != null)
+            {
+                organizationDto = new OrganizationDto()
+                {
+                    Id = organizationEntity.Id,
+                    Name = organizationEntity.Name,
+                    Description = organizationEntity.Description,
+                    CreatedAt = organizationEntity.CreatedAt,
+                    ContactEmail = organizationEntity.ContactEmail,
+                    PhoneNumber = organizationEntity.PhoneNumber,
+                };
+            }
+        }
+        
+        var userDto = new UserDto(user.Id, user.Name, user.Email, user.PhoneNumber, user.CreatedAt, organizationDto);
+        
+        await _cache.SetAsync(cacheKey, userDto);
+
+        return userDto;
     }
 
     /// <summary>Returns null if there is no user with that id.</summary>
@@ -63,7 +78,13 @@ public class UserService
         await _db.SaveChangesAsync();
         await _cache.RemoveAsync($"user:{id}");
 
-        return await BuildUserQuery(_db.Users.Where(u => u.Id == id)).FirstAsync();
+        var userEntity = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (userEntity == null)
+        {
+            return null;
+        }
+        
+        return new UserDto(user.Id, user.Name, user.Email, user.PhoneNumber, user.CreatedAt, null);
     }
 
     /// <summary>Returns false if there was no user with that id.</summary>
@@ -81,26 +102,5 @@ public class UserService
         await _cache.RemoveAsync($"user:{id}");
 
         return true;
-    }
-
-    // Returns a query, not results, so roles resolve as a join in the caller's
-    // single statement rather than one lookup per user.
-    private IQueryable<UserDto> BuildUserQuery(IQueryable<AppUser> query)
-    {
-        return query
-            .AsNoTracking()
-            .Select(user => new UserDto(
-                user.Id,
-                user.Name,
-                user.Email!,
-                user.PhoneNumber,
-                user.CreatedAt,
-                _db.UserRoles
-                    .Where(userRole => userRole.UserId == user.Id)
-                    .Join(_db.Roles,
-                          userRole => userRole.RoleId,
-                          role => role.Id,
-                          (userRole, role) => role.Name!)
-                    .ToList()));
     }
 }
