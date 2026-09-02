@@ -2,7 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GoodDeedsApi.Models.Dtos;
 
-public record RegisterRequest(string Email, string Password);
+public record RegisterRequest(
+    [Required]
+    [EmailAddress]
+    string Email,
+
+    [Required]
+    string Password,
+
+    /// <summary>Display name shown on the volunteer's profile.</summary>
+    [Required]
+    [StringLength(200)]
+    string Name);
 
 public record LoginRequest(string Email, string Password);
 

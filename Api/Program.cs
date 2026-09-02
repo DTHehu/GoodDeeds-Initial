@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using GoodDeedsApi.Data;
-using GoodDeedsApi.Identity;
 using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
@@ -53,7 +52,6 @@ public class Program
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             })
             .AddRoles<AppRole>()
-            .AddUserManager<AppUserManager>()
             .AddEntityFrameworkStores<AppDbContext>();
 
         builder.Services.Configure<BearerTokenOptions>(

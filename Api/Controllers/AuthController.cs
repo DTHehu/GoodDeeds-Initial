@@ -46,7 +46,12 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        AppUser user = new() { UserName = request.Email, Email = request.Email };
+        AppUser user = new()
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            Name = request.Name.Trim()
+        };
 
         IdentityResult created = await _userManager.CreateAsync(user, request.Password);
 

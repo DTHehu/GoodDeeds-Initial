@@ -28,13 +28,14 @@ public class OrganizationService
     /// </summary>
     public async Task<bool> RegisterAsync(OrganizationRegisterRequest request)
     {
-        string contactEmail = request.ContactEmail.Trim().ToLowerInvariant();
+        string contactEmail = request.ContactEmail.Trim().ToLower();
 
         if (await _db.Organizations.AnyAsync(org => org.ContactEmail == contactEmail))
         {
             return false;
         }
 
+        //Makes the whole method atomic
         await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
 
         AppUser owner = new()
@@ -46,14 +47,11 @@ public class OrganizationService
 
         if (!(await _userManager.CreateAsync(owner, request.Password)).Succeeded)
         {
-            // Leaving without committing rolls the user insert back.
             return false;
         }
 
         Organization organization = new()
         {
-            // Set here rather than letting the database default fill it in, so
-            // the id is known before SaveChanges and can be put on the owner.
             Id = Guid.NewGuid(),
             Name = request.Name.Trim(),
             ContactEmail = contactEmail,
