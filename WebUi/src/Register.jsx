@@ -69,13 +69,11 @@ function Register() {
                                 </div> 
                             )}
 
-                            <button type="submit" className="register-submit"> 
-                                <Link to="/login"> 
-                                    Create { 
-                                    accountType === 'volunteer' ? 'Volunteer' : 'Organization' 
-                                    } Account 
-                                </Link> 
-                            </button> 
+                            <Link to="/login" type="submit" className="register-submit"> 
+                                Create { 
+                                accountType === 'volunteer' ? 'Volunteer' : 'Organization' 
+                                } Account 
+                            </Link> 
 
                         </form> 
                         <p className="login-link"> 
