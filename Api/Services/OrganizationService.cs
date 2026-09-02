@@ -3,7 +3,6 @@ using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GoodDeedsApi.Services;
 
@@ -28,7 +27,7 @@ public class OrganizationService
     /// </summary>
     public async Task<bool> RegisterAsync(OrganizationRegisterRequest request)
     {
-        string contactEmail = request.ContactEmail.Trim().ToLower();
+        var contactEmail = request.ContactEmail.Trim().ToLower();
 
         if (await _db.Organizations.AnyAsync(org => org.ContactEmail == contactEmail))
         {
@@ -36,9 +35,9 @@ public class OrganizationService
         }
 
         //Makes the whole method atomic
-        await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
+        await using var transaction = await _db.Database.BeginTransactionAsync();
 
-        AppUser owner = new()
+        var owner = new AppUser
         {
             UserName = request.Email,
             Email = request.Email,
@@ -50,7 +49,7 @@ public class OrganizationService
             return false;
         }
 
-        Organization organization = new()
+        var organization = new Organization
         {
             Id = Guid.NewGuid(),
             Name = request.Name.Trim(),

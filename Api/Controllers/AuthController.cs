@@ -2,7 +2,6 @@ using System.Security.Claims;
 using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -42,7 +41,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        AppUser user = new()
+        var user = new AppUser
         {
             UserName = request.Email,
             Email = request.Email,
@@ -102,10 +101,9 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
     {
-        ISecureDataFormat<AuthenticationTicket> protector =
-            _bearerOptions.Get(IdentityConstants.BearerScheme).RefreshTokenProtector;
+        var protector = _bearerOptions.Get(IdentityConstants.BearerScheme).RefreshTokenProtector;
 
-        AuthenticationTicket? ticket = protector.Unprotect(request.RefreshToken);
+        var ticket = protector.Unprotect(request.RefreshToken);
 
         // ValidateSecurityStampAsync also rejects tokens issued before a
         // password change.
@@ -116,7 +114,7 @@ public class AuthController : ControllerBase
             return Unauthorized();
         }
 
-        ClaimsPrincipal principal = await _signInManager.CreateUserPrincipalAsync(user);
+        var principal = await _signInManager.CreateUserPrincipalAsync(user);
 
         return SignIn(principal, IdentityConstants.BearerScheme);
     }

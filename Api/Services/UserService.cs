@@ -24,15 +24,15 @@ public class UserService
 
     public async Task<UserDto?> GetByIdAsync(Guid id)
     {
-        string cacheKey = $"user:{id}";
+        var cacheKey = $"user:{id}";
 
-        UserDto? cached = await _cache.GetAsync<UserDto>(cacheKey);
+        var cached = await _cache.GetAsync<UserDto>(cacheKey);
         if (cached != null)
         {
             return cached;
         }
 
-        UserDto? user = await BuildUserQuery(_db.Users.Where(userInstance => userInstance.Id == id))
+        var user = await BuildUserQuery(_db.Users.Where(userInstance => userInstance.Id == id))
             .FirstOrDefaultAsync();
 
         if (user == null)
@@ -48,7 +48,7 @@ public class UserService
     /// <summary>Returns null if there is no user with that id.</summary>
     public async Task<UserDto?> UpdateAsync(Guid id, UpdateUserRequest request)
     {
-        AppUser? user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
 
         if (user == null)
         {
@@ -69,7 +69,7 @@ public class UserService
     /// <summary>Returns false if there was no user with that id.</summary>
     public async Task<bool> DeleteAsync(Guid id)
     {
-        AppUser? user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
 
         if (user == null)
         {

@@ -25,7 +25,7 @@ public class RedisCacheService
     {
         try
         {
-            string? json = await _cache.GetStringAsync(key);
+            var json = await _cache.GetStringAsync(key);
 
             return json == null ? default : JsonSerializer.Deserialize<T>(json);
         }
@@ -40,7 +40,7 @@ public class RedisCacheService
     {
         try
         {
-            DistributedCacheEntryOptions options = new()
+            var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = CacheDuration
             };

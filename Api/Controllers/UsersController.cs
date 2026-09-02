@@ -52,7 +52,7 @@ public class UsersController : ControllerBase
             return Unauthorized();
         }
 
-        UserDto? user = await _users.GetByIdAsync(CurrentUserId.Value);
+        var user = await _users.GetByIdAsync(CurrentUserId.Value);
 
         return user == null ? NotFound() : Ok(user);
     }
@@ -65,7 +65,7 @@ public class UsersController : ControllerBase
             return Unauthorized();
         }
 
-        UserDto? updated = await _users.UpdateAsync(CurrentUserId.Value, request);
+        var updated = await _users.UpdateAsync(CurrentUserId.Value, request);
 
         return updated == null ? NotFound() : Ok(updated);
     }
@@ -78,7 +78,7 @@ public class UsersController : ControllerBase
             return Forbid();
         }
 
-        UserDto? user = await _users.GetByIdAsync(id);
+        var user = await _users.GetByIdAsync(id);
 
         return user == null ? NotFound() : Ok(user);
     }
@@ -91,7 +91,7 @@ public class UsersController : ControllerBase
             return Forbid();
         }
 
-        UserDto? updated = await _users.UpdateAsync(id, request);
+        var updated = await _users.UpdateAsync(id, request);
 
         return updated == null ? NotFound() : Ok(updated);
     }

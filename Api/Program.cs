@@ -139,10 +139,10 @@ public class Program
 
         app.MapGet("/health", async (AppDbContext db, RedisCacheService cache) =>
         {
-            bool postgresUp = await db.Database.CanConnectAsync();
+            var postgresUp = await db.Database.CanConnectAsync();
 
             await cache.SetAsync("health:ping", "pong");
-            bool redisUp = await cache.GetAsync<string>("health:ping") == "pong";
+            var redisUp = await cache.GetAsync<string>("health:ping") == "pong";
 
             var result = new { postgres = postgresUp, redis = redisUp };
 
