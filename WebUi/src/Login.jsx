@@ -51,11 +51,9 @@ function Login() {
                             <input type="password" id="password" placeholder="Enter your password"/> 
                         </div> 
 
-                       <button type="submit" className="login-button"> 
-                            <Link to={accountType === 'volunteer' ? '/vol-dashboard' : '/org-dashboard'}> 
-                                Login as {accountType === 'volunteer' ? 'Volunteer' : 'Organization'} 
-                            </Link> 
-                        </button> 
+                        <Link type="submit" className="login-button" to={accountType === 'volunteer' ? '/vol-dashboard' : '/org-dashboard'}> 
+                            Login as {accountType === 'volunteer' ? 'Volunteer' : 'Organization'} 
+                        </Link> 
                     </form> 
 
                     <p className="signup-text"> 
