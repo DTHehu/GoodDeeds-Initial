@@ -40,7 +40,7 @@ public class EventService
         return eventsDtos;
     }
 
-    public async Task<EventDto> GetEventById(Guid eventId)
+    public async Task<EventDto?> GetEventById(Guid eventId)
     {
         var eventEntity = await _db.Events.FindAsync(eventId);
         if (eventEntity == null)
