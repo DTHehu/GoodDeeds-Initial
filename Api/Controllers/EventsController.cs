@@ -10,12 +10,10 @@ namespace GoodDeedsApi.Controllers;
 [Authorize(Policy = Policies.AuthenticatedUser)]
 public class EventsController : ControllerBase
 {
-    private readonly UserService _users;
     private readonly EventService _events;
     
-    public EventsController(UserService users, EventService events)
+    public EventsController(EventService events)
     {
-        _users = users;
         _events = events;
     }
     
