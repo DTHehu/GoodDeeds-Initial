@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,4 +29,16 @@ public class EventsController : ControllerBase
         return Ok(eventDtos);
     }
     
+    [HttpPost]
+    public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto)
+    {
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        var createdEvent = await _events.CreateEvent(eventDto, CurrentUserId.Value);
+        
+        return CreatedAtAction(nameof(GetEvents), new { id = createdEvent.Id }, createdEvent);
+    }
 }

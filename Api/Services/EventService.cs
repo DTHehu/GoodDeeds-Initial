@@ -38,4 +38,33 @@ public class EventService
 
         return eventsDtos;
     }
+    public async Task<EventDto> CreateEvent(EventDto eventDto, Guid userId)
+    {
+        var newEvent = new Event()
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            Description = eventDto.Description,
+            EndTime = eventDto.EndTime,
+            Location = eventDto.Location,
+            OrganizationId = userId,
+            StartTime = eventDto.StartTime,
+            Title = eventDto.Title
+        };
+
+        _db.Events.Add(newEvent);
+        await _db.SaveChangesAsync();
+
+        return new EventDto()
+        {
+            Id = newEvent.Id,
+            CreatedAt = newEvent.CreatedAt,
+            Description = newEvent.Description,
+            EndTime = newEvent.EndTime,
+            Location = newEvent.Location,
+            OrganizationId = newEvent.OrganizationId,
+            StartTime = newEvent.StartTime,
+            Title = newEvent.Title
+        };
+    }
 }
