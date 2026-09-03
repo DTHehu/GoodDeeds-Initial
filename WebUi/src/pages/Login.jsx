@@ -1,6 +1,6 @@
 import { useState } from 'react' 
 import { Link } from 'react-router-dom' 
-import './index.css' 
+import "../css/index.css" 
 
 function Login() { 
     const [accountType, setAccountType] = useState('volunteer') 
