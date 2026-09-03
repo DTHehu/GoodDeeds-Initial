@@ -1,4 +1,4 @@
-const BASE = " http://localhost:5160"
+const BASE = " http://localhost:5160/api"
 
 export function saveTokens(accessToken, refreshToken) {
     localStorage.setItem("access_token", accessToken);

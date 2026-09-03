@@ -1,6 +1,19 @@
 import { useState } from 'react' 
 import { Link } from 'react-router-dom' 
-import "../css/index.css" 
+import "../css/index.css"
+import {api, saveTokens} from "../services/api.js";
+
+async function TryUserRegistration(email, password, name) {
+    const body = {
+        email: email,
+        password: password,
+        name: name
+    }
+
+    const apiResponse = await api.post('/auth/register', body)
+
+    return apiResponse
+}
 
 function Register() { 
     const [accountType, setAccountType] = useState('volunteer') 
