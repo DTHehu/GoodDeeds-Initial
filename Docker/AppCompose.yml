@@ -7,7 +7,6 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      # CRITICAL: Persist certificates to avoid Let's Encrypt rate limits
       - caddy_data:/data
       - caddy_config:/config
     networks:
