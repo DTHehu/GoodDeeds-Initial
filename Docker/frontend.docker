@@ -18,7 +18,7 @@ FROM nginx:alpine
 # Clear default Nginx assets
 RUN rm -rf /usr/share/nginx/html/*
 
-# CRITICAL FIX: Extract from Vite's 'dist' directory
+# Extract from Vite's 'dist' directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Inject custom routing configuration
