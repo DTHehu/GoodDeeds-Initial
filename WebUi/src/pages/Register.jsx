@@ -110,12 +110,7 @@ function Register() {
                                    onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-
-                        {/* 
-                            Peer Review Note: Your original file had a bug where the phone number input was rendered unconditionally, 
-                            AND heavily duplicated again inside an accountType === 'organization' check. 
-                            I have deleted the duplicate and wrapped this sole instance in the strict org check.
-                        */}
+                        
                         {accountType === 'organization' && (
                             <div className="form-group">
                                 <label htmlFor="phonenumber">
