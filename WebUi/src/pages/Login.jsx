@@ -34,13 +34,26 @@ function Login() {
         }
 
         setBusy(true)
+
         try {
             await TryLogin(email, password)
-            navigate(accountType === 'volunteer' ? '/vol-dashboard' : '/org-dashboard')
         } catch {
             setError("That email and password don't match.")
+            setBusy(false)
+            return
         }
-        setBusy(false)
+
+        try {
+            // The account type is decided by the account itself, not by the
+            // button the user picked. A user that belongs to an organization
+            // comes back with an organization on their profile.
+            const user = await api.get('/auth/me')
+
+            navigate(user.organization ? '/org-dashboard' : '/vol-dashboard')
+        } catch {
+            setError('Signed in, but your account could not be loaded. Please try again.')
+            setBusy(false)
+        }
     }
 
     return (

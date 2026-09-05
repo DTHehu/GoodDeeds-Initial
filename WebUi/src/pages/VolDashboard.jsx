@@ -1,39 +1,45 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { api } from '../services/api'
 import "../css/index.css"
 
 function VolDashboard() {
 
     const [events, setEvents] = useState([])
     const [search, setSearch] = useState("")
+    const [error, setError] = useState("")
 
     useEffect(() => {
-        getEvents()
+
+        let cancelled = false
+
+        api.get("/events/events")
+            .then((data) => {
+                if (cancelled) return
+
+                setEvents(data)
+                setError("")
+            })
+            .catch((requestError) => {
+                if (cancelled) return
+
+                console.error(requestError)
+                setError("Could not load events. You may need to log in again.")
+            })
+
+        return () => {
+            cancelled = true
+        }
     }, [])
 
-    async function getEvents() {
+    const filteredEvents = events.filter((event) => {
 
-        try {
-            const response = await fetch("http://localhost:5160/api/events/events")
+        const term = search.toLowerCase()
 
-            if (!response.ok) {
-                throw new Error("Failed to get events")
-            }
-
-            const data = await response.json()
-
-            setEvents(data)
-
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-    const filteredEvents = events.filter((event) =>
-        event.title.toLowerCase().includes(search.toLowerCase()) ||
-        event.description.toLowerCase().includes(search.toLowerCase()) ||
-        event.location.toLowerCase().includes(search.toLowerCase())
-    )
+        return (event.title || "").toLowerCase().includes(term) ||
+            (event.description || "").toLowerCase().includes(term) ||
+            (event.location || "").toLowerCase().includes(term)
+    })
 
     return (
         <div className="home-page">
@@ -84,6 +90,8 @@ function VolDashboard() {
             <section className="info-container">
 
                 <h2>Volunteer Opportunities</h2>
+
+                {error && <p className="error">{error}</p>}
 
                 <div className="info-cards">
 

@@ -117,7 +117,6 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseHttpsRedirection();
             app.UseCors("dev");
 
             app.MapOpenApi();
@@ -126,10 +125,6 @@ public class Program
             app.UseSwaggerUI(options =>
                 options.SwaggerEndpoint("/openapi/v1.json", "GoodDeeds API v1"));
         }
-
-        // UseHttpsRedirection stays out of production: the container listens on
-        // plain HTTP :8080 behind Caddy, and enabling it there causes redirect
-        // loops.
 
         // Authentication must run before authorization.
         app.UseAuthentication();
