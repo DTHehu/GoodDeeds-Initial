@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import "../css/index.css"
 import { api, saveTokens } from '../services/api'
+import "../css/index.css"
 
 function Login() {
     const navigate = useNavigate()
@@ -44,22 +44,21 @@ function Login() {
     }
 
     return (
-        <div className="login-page">
+        <div className="lr-page">
 
             <nav className="navbar">
-                <div className="logo">
+                <div className="link">
                     <Link to="/">GoodDeeds</Link>
                 </div>
-                <div className="nav-links">
+                <div className="link">
                     <Link to="/login">Login</Link>
-                    <Link to="/register">Register</Link>
                 </div>
             </nav>
 
-            <div className="login-content">
-                <div className="login-container">
+            <div className="lr-content">
+                <div className="lr-container">
                     <h1>Login</h1>
-                    <p className="login-description">
+                    <p>
                         Choose your account type to continue.
                     </p>
 
@@ -102,14 +101,14 @@ function Login() {
 
                         {error && <p className="login-error">{error}</p>}
 
-                        <button type="submit" className="login-button" disabled={busy}>
+                        <button type="submit" className="primary-button" disabled={busy}>
                             {busy
                                 ? 'Signing in...'
                                 : `Login as ${accountType === 'volunteer' ? 'Volunteer' : 'Organization'}`}
                         </button>
                     </form>
 
-                    <p className="signup-text">
+                    <p className="link">
                         Don't have an account?{' '}
                         <Link to="/register">Sign up</Link>
                     </p>

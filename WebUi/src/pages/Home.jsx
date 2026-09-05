@@ -7,12 +7,11 @@ function Home() {
 
       {/*Navbar*/} 
       <nav className="navbar"> 
-        <div className="nav-links"> 
+        <div className="link"> 
           <Link to="/">GoodDeads</Link> 
         </div> 
-        <div className="nav-links"> 
+        <div className="link"> 
           <Link to="/login">Login</Link> 
-          <Link to="/register">Register</Link> 
         </div> 
       </nav> 
 

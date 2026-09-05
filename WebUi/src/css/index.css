@@ -11,7 +11,7 @@ body {
 } 
 
 .about { 
-    @apply bg-white px-5 py-[60px] text-center; 
+    @apply bg-[#BEBDB8] px-5 py-[60px] text-center; 
 } 
 
 .about h2 { 
@@ -20,35 +20,6 @@ body {
 
 .about p { 
     @apply mx-auto max-w-[600px] text-[18px] leading-[1.5]; 
-} 
-
-.info-container{ 
-    @apply bg-[#f5f7fa] px-5 py-[60px] text-center; 
-} 
-
-.info-container h2 { 
-    @apply mb-[10px]; 
-} 
-
-.info-container p { 
-    @apply mb-[35px] text-[#666]; 
-} 
-
-.info-cards { 
-    @apply mx-auto flex max-w-[800px] justify-center gap-[25px]; 
-} 
-
-.info-card { 
-    @apply max-w-[350px] flex-1 rounded-xl bg-white p-[30px]; 
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); 
-} 
-
-.info-card h3 { 
-    @apply mb-[15px] text-[#2e8b57]; 
-} 
-
-.info-card p { 
-    @apply mb-[25px] leading-[1.5] text-[#555]; 
 } 
 
 /* NavBar */ 
@@ -61,55 +32,33 @@ body {
     @apply m-0 text-[#2e8b57]; 
 } 
 
-.nav-links { 
-    @apply flex gap-5; 
-} 
-
-.nav-links a { 
-    @apply text-[#333] no-underline; 
-} 
-
-.nav-links a:hover { 
-    @apply text-[#2e8b57]; 
-} 
-
 /* Login and Register */ 
-.login-page, 
-.register-page { 
+.lr-page { 
     @apply min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] font-sans; 
 } 
 
-.login-content, 
-.register-content { 
+.lr-content { 
     @apply flex min-h-[calc(100vh-73px)] items-center justify-center px-5 py-[40px]; 
 } 
 
-.login-container, 
-.register-container { 
+.lr-container { 
     @apply m-5 w-full rounded-xl bg-white p-[30px]; 
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); 
 } 
 
-.login-container { 
+.lr-container { 
     @apply max-w-[400px]; 
 } 
 
-.register-container { 
-    @apply max-w-[500px]; 
-} 
-
-.login-container h1, 
-.register-container h1 { 
+.lr-container h1 { 
     @apply mb-[25px] text-center text-[28px] text-[#333]; 
 } 
 
-.login-description, 
-.login-container p, 
-.register-container p { 
+.lr-container p{ 
     @apply mb-[25px] text-center text-[14px] text-[#666]; 
 } 
 
-/* Account Type */ 
+/* Choosing Account Type */ 
 .account-type { 
     @apply mb-[25px] flex gap-[10px]; 
 } 
@@ -157,30 +106,96 @@ body {
     @apply border-[#2e8b57]; 
     box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15); 
 } 
-
-/* Buttons */ 
-.login-button, 
-.register-submit { 
+ 
+.primary-button { 
     @apply mt-2 cursor-pointer rounded-lg border-0 bg-[#2e8b57] p-[13px] text-center text-[16px] font-semibold text-white no-underline; 
 } 
 
-.login-button:hover, 
-.register-submit:hover { 
+.primary-button:hover {
     @apply bg-[#267349]; 
 } 
 
-/* Links */ 
-.signup-text, 
-.login-link { 
-    @apply mt-[25px] text-center text-[14px] text-[#666]; 
+/* Links */
+
+.link { 
+    @apply gap-5 text-center text-[14px] text-[#666]; 
 } 
 
-.signup-text a, 
-.login-link a { 
-    @apply font-semibold text-[#2e8b57] no-underline; 
+.link a{ 
+    @apply font-semibold text-[#333] no-underline; 
 } 
 
-.signup-text a:hover, 
-.login-link a:hover { 
-    @apply underline; 
+.link a:hover { 
+    @apply underline text-[#2e8b57]; 
+}
+
+/*Organization Dashboard*/
+.dashboard {
+    @apply flex;
+}
+
+.sidebar {
+    @apply min-h-[calc(100vh-73px)] w-[220px] bg-white p-[25px];
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar h3 {
+    @apply mb-[25px] text-[#2e8b57];
+}
+
+.dashboard-content {
+    @apply flex-1;
+}
+
+.info-container {
+    @apply px-5 py-[40px];
+}
+
+.info-cards {
+    @apply mx-auto flex max-w-[1000px] flex-wrap justify-center gap-[25px];
+}
+
+.info-card {
+    @apply w-full max-w-[280px] rounded-xl bg-white p-[30px];
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.info-card h3 {
+    @apply mb-[15px] text-[#2e8b57];
+}
+
+.info-card p {
+    @apply leading-[1.5] text-[#555];
+}
+
+.event-form {
+    @apply mt-[20px] flex flex-col gap-[10px];
+}
+
+.event-form input,
+.event-form textarea {
+    @apply box-border w-full rounded-lg border border-[#ccc] p-[10px] text-[14px] outline-none;
+}
+
+.event-form textarea {
+    @apply min-h-[100px] resize-y;
+}
+
+.event-form input:focus,
+.event-form textarea:focus {
+    @apply border-[#2e8b57];
+}
+
+/* Search */
+
+.search-section {
+    @apply bg-[#f5f7fa] px-5 py-[30px] text-center;
+}
+
+.search-section input {
+    @apply mt-[15px] w-full max-w-[600px] rounded-lg border border-[#ccc] px-[14px] py-3 outline-none;
+}
+
+.search-section input:focus {
+    @apply border-[#2e8b57];
 }

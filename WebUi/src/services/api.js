@@ -1,4 +1,4 @@
-const BASE = " http://localhost:5160/api"
+const BASE = "http://localhost:5160/api"
 
 export function saveTokens(accessToken, refreshToken) {
     localStorage.setItem("access_token", accessToken);
@@ -56,11 +56,14 @@ export async function callApi(path, method, body, isRetry) {
     }
 
     if (!response.ok) {
-        throw new Error("Request failed: " + response.status);
-    }
+    const errorText = await response.text();
 
-    if (response.status === 204) return null; // 204 = success, no content
-    return await response.json();
+    console.error("Backend response:", errorText);
+
+    throw new Error(
+        "Request failed: " + response.status + " - " + errorText
+    );
+    }
 }
 
 export const api = {
