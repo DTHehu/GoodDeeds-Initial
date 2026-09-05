@@ -249,3 +249,12 @@ a.primary-button {
 .info-card .primary-button {
     @apply mt-[20px];
 }
+
+/* Pop ups for events*/
+.popup {
+    @apply fixed inset-0 flex items-center justify-center bg-black/40;
+}
+
+.popup-content {
+    @apply w-full max-w-[500px] rounded-xl bg-white p-[30px];
+}

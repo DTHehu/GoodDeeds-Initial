@@ -9,6 +9,7 @@ function VolDashboard() {
     const [events, setEvents] = useState([])
     const [search, setSearch] = useState("")
     const [error, setError] = useState("")
+    const [showPopup, setShowPopup] = useState(false)
 
     useEffect(() => {
 
@@ -92,36 +93,65 @@ function VolDashboard() {
                             <h3>{event.title}</h3>
 
                             <p>
-                                {event.description}
-                            </p>
-
-                            <p>
                                 <strong>Location:</strong>{" "}
                                 {event.location}
                             </p>
 
                             <p>
-                                <strong>Start:</strong>{" "}
-                                {new Date(event.startTime).toLocaleString()}
+                              <strong>Start:</strong>{" "}
+                              {new Date(event.startTime).toLocaleString()}
                             </p>
-
+                            
                             <p>
-                                <strong>End:</strong>{" "}
-                                {new Date(event.endTime).toLocaleString()}
+                              <strong>End:</strong>{" "}
+                              {new Date(event.endTime).toLocaleString()}
                             </p>
 
                             <div className="card-buttons">
-
-                                <Link
-                                    to={`/event/${event.id}`}
+                                <button
+                                    onClick={() => setShowPopup(true)}
                                     className="primary-button"
                                 >
-                                    View Information
-                                </Link>
-
-                                <button className="primary-button">
-                                    Register for Event
+                                    More Information
                                 </button>
+                                  {showPopup && (
+                                      <div className="popup">
+                                        <div className="popup-content">
+                                          <h2>More Information</h2>
+
+                                           <h3>{event.title}</h3>
+
+                                          <p>
+                                              {event.description}
+                                          </p>
+
+                                          <p>
+                                              <strong>Location:</strong>{" "}
+                                              {event.location}
+                                          </p>
+
+                                          <p>
+                                            <strong>Start:</strong>{" "}
+                                            {new Date(event.startTime).toLocaleString()}
+                                          </p>
+                                          
+                                          <p>
+                                            <strong>End:</strong>{" "}
+                                            {new Date(event.endTime).toLocaleString()}
+                                          </p>
+
+                                          <button className="primary-button">
+                                              Register for Event
+                                          </button> {" "}
+
+                                          <button onClick={() => setShowPopup(false)} 
+                                            className="primary-button">
+                                              Close
+                                          </button>
+                                          
+                                          </div>
+                                      </div>
+                                  )}
 
                             </div>
 
