@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { api } from "../services/api.js";
+import Navbar from '../components/Navbar.jsx'
 import "../css/index.css"
 
 function Register() {
-    const navigate = useNavigate()
     const [accountType, setAccountType] = useState('volunteer')
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
@@ -14,6 +14,7 @@ function Register() {
     const [description, setDescription] = useState('')
 
     const [error, setError] = useState('')
+    const [registered, setRegistered] = useState(false)
     const [busy, setBusy] = useState(false)
 
     async function tryUserRegister(email, password, name) {
@@ -39,10 +40,10 @@ function Register() {
             } else {
                 await tryOrgRegister(email, password, name, contactEmail, phoneNumber, description);
             }
-            navigate('/login');
+            setRegistered(true);
         } catch (err) {
             console.error("Registration error:", err);
-            setError(err?.response?.data?.message || "There was a problem creating your account.");
+            setError(err.message || "There was a problem creating your account.");
         } finally {
             setBusy(false);
         }
@@ -50,18 +51,26 @@ function Register() {
 
     return (
         <div className="lr-page">
-            <nav className="navbar">
-                <div className="link">
-                    <Link to="/">GoodDeeds</Link>
-                </div>
-
-                <div className="link">
-                    <Link to="/login">Login</Link>
-                </div>
-            </nav>
+            <Navbar />
 
             <div className="lr-content">
                 <div className="lr-container">
+
+                    {registered ? (
+                        <>
+                            <h1>Account created</h1>
+
+                            <p className="success">
+                                Your {accountType === 'volunteer' ? 'volunteer' : 'organization'} account
+                                is ready. You can log in with {email} now.
+                            </p>
+
+                            <Link to="/login" className="primary-button">
+                                Go to login
+                            </Link>
+                        </>
+                    ) : (
+                    <>
                     <h1>Create an Account</h1>
                     <p>Choose the type of account you want to create.</p>
 
@@ -146,7 +155,7 @@ function Register() {
                             </div>
                         )}
 
-                        {error && <p className="login-error">{error}</p>}
+                        {error && <p className="error">{error}</p>}
 
                         <button type="submit" className="primary-button" disabled={busy}>
                             {busy
@@ -159,6 +168,9 @@ function Register() {
                         Already have an account?{' '}
                         <Link to="/login">Login</Link>
                     </p>
+                    </>
+                    )}
+
                 </div>
             </div>
         </div>

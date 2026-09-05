@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { api } from '../services/api'
+import Navbar from '../components/Navbar.jsx'
 import "../css/index.css"
 
 function OrgDashboard() {
@@ -82,18 +82,7 @@ function OrgDashboard() {
     return (
         <div className="home-page">
 
-            {/* Navbar */}
-            <nav className="navbar">
-
-                <div className="link">
-                    <Link to="/">GoodDeads</Link>
-                </div>
-
-                <div className="link">
-                    <Link to="/login">Login</Link>
-                </div>
-
-            </nav>
+            <Navbar />
 
 
             <div className="dashboard">

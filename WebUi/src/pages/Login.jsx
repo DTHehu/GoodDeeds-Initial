@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api, saveTokens } from '../services/api'
+import { api, saveTokens, saveDashboardPath } from '../services/api'
+import Navbar from '../components/Navbar.jsx'
 import "../css/index.css"
 
 function Login() {
@@ -49,7 +50,10 @@ function Login() {
             // comes back with an organization on their profile.
             const user = await api.get('/auth/me')
 
-            navigate(user.organization ? '/org-dashboard' : '/vol-dashboard')
+            const dashboard = user.organization ? '/org-dashboard' : '/vol-dashboard'
+
+            saveDashboardPath(dashboard)
+            navigate(dashboard)
         } catch {
             setError('Signed in, but your account could not be loaded. Please try again.')
             setBusy(false)
@@ -59,14 +63,7 @@ function Login() {
     return (
         <div className="lr-page">
 
-            <nav className="navbar">
-                <div className="link">
-                    <Link to="/">GoodDeeds</Link>
-                </div>
-                <div className="link">
-                    <Link to="/login">Login</Link>
-                </div>
-            </nav>
+            <Navbar />
 
             <div className="lr-content">
                 <div className="lr-container">
@@ -112,7 +109,7 @@ function Login() {
                             />
                         </div>
 
-                        {error && <p className="login-error">{error}</p>}
+                        {error && <p className="error">{error}</p>}
 
                         <button type="submit" className="primary-button" disabled={busy}>
                             {busy

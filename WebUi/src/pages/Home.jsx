@@ -1,58 +1,84 @@
-import { Link } from 'react-router-dom' 
-import "../css/index.css" 
+import { Link } from 'react-router-dom'
+import { isLoggedIn, getDashboardPath } from '../services/api'
+import Navbar from '../components/Navbar.jsx'
+import "../css/index.css"
 
-function Home() { 
-  return ( 
-    <div className="home-page"> 
+function Home() {
 
-      {/*Navbar*/} 
-      <nav className="navbar"> 
-        <div className="link"> 
-          <Link to="/">GoodDeads</Link> 
-        </div> 
-        <div className="link"> 
-          <Link to="/login">Login</Link> 
-        </div> 
-      </nav> 
+  const loggedIn = isLoggedIn()
 
+  return (
+    <div className="home-page">
 
-      {/*About Section*/} 
-      <section className="about"> 
-        <h2>Volunteering Made Easy</h2> 
-        <p> 
-          Connect with organizations and find opportunities 
-          to make a difference in your community. 
-        </p> 
-      </section> 
+      <Navbar />
 
-      {/*Information Section*/} 
-      <section className="info-container"> 
-        <h2>Welcome to GoodDeeds</h2> 
-        <p>Choose how you would like to use GoodDeeds.</p> 
+      <section className="about">
 
-        <div className="info-cards"> 
+        <h2>Volunteering Made Easy</h2>
 
-          {/*Volunteer*/} 
-          <div className="info-card"> 
-            <h3>Volunteer</h3> 
-            <p> 
-              Find volunteer opportunities and make a difference in your community. 
-            </p> 
-          </div> 
+        <p>
+          Connect with organizations and find opportunities
+          to make a difference in your community.
+        </p>
 
-          {/*Organization*/} 
-          <div className="info-card"> 
-            <h3>Organization</h3> 
-            <p> 
-              Create volunteer opportunities and connect with people who want to help. 
-            </p> 
+        {loggedIn ? (
+          <Link to={getDashboardPath()} className="primary-button hero-button">
+            Go to your dashboard
+          </Link>
+        ) : (
+          <Link to="/register" className="primary-button hero-button">
+            Get started
+          </Link>
+        )}
+
+      </section>
+
+      <section className="info-container">
+
+        <h2>Welcome to GoodDeeds</h2>
+
+        <p>Choose how you would like to use GoodDeeds.</p>
+
+        <div className="info-cards">
+
+          <div className="info-card">
+
+            <h3>Volunteer</h3>
+
+            <p>
+              Find volunteer opportunities and make a difference in your community.
+            </p>
+
+            {!loggedIn && (
+              <Link to="/register" className="primary-button">
+                Sign up to volunteer
+              </Link>
+            )}
+
           </div>
-          
-        </div> 
 
-      </section> 
-    </div> 
-  ) 
-} 
+          <div className="info-card">
 
-export default Home 
+            <h3>Organization</h3>
+
+            <p>
+              Create volunteer opportunities and connect with people who want to help.
+            </p>
+
+            {!loggedIn && (
+              <Link to="/register" className="primary-button">
+                Register your organization
+              </Link>
+            )}
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  )
+}
+
+export default Home

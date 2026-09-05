@@ -9,9 +9,44 @@ export function getAccessToken() {
     return localStorage.getItem("access_token"); // null if not there
 }
 
+export function isLoggedIn() {
+    return getAccessToken() !== null;
+}
+
+export function saveDashboardPath(path) {
+    localStorage.setItem("dashboard_path", path);
+}
+
+export function getDashboardPath() {
+    return localStorage.getItem("dashboard_path") || "/vol-dashboard";
+}
+
 export function clearTokens() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    localStorage.removeItem("dashboard_path");
+}
+
+// Pulls a readable sentence out of whatever the API sent back. Validation
+// failures arrive as { errors: { Field: ["message"] } }, other failures as a
+// problem document or as plain text.
+function describeFailure(data, text, status) {
+    if (typeof data === "string" && data.length > 0) {
+        return data;
+    }
+
+    if (data && data.errors) {
+        const messages = Object.values(data.errors).flat();
+        if (messages.length > 0) {
+            return messages.join(" ");
+        }
+    }
+
+    if (data && data.detail) return data.detail;
+    if (data && data.title) return data.title;
+    if (text) return text;
+
+    return "Request failed with status " + status;
 }
 
 async function tryRefresh() {
@@ -56,19 +91,26 @@ export async function callApi(path, method, body, isRetry) {
     }
 
     if (!response.ok) {
-    const errorText = await response.text();
+        const text = await response.text();
 
-    console.error("Backend response:", errorText);
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = null;
+        }
 
-    throw new Error(
-        "Request failed: " + response.status + " - " + errorText
-    );
+        const error = new Error(describeFailure(data, text, response.status));
+        error.status = response.status;
+        error.data = data;
+
+        throw error;
     }
-    if (response.status === 204) {
-        return null;
-    }
-    
-    return await response.json();
+
+    // 204, and 200 from an endpoint like register that returns no body.
+    const responseBody = await response.text();
+
+    return responseBody ? JSON.parse(responseBody) : null;
 }
 
 export const api = {

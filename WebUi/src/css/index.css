@@ -22,15 +22,35 @@ body {
     @apply mx-auto max-w-[600px] text-[18px] leading-[1.5]; 
 } 
 
-/* NavBar */ 
-.navbar { 
-    @apply flex items-center justify-between bg-white px-10 py-5; 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
-} 
+/* NavBar */
+.navbar {
+    @apply flex items-center justify-between bg-white px-10 py-5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
 
-.navbar h1 { 
-    @apply m-0 text-[#2e8b57]; 
-} 
+.navbar h1 {
+    @apply m-0 text-[#2e8b57];
+}
+
+.nav-links {
+    @apply flex items-center gap-6 text-[14px];
+}
+
+.nav-links a {
+    @apply font-semibold text-[#333] no-underline;
+}
+
+.nav-links a:hover {
+    @apply underline text-[#2e8b57];
+}
+
+.nav-button {
+    @apply cursor-pointer border-0 bg-transparent p-0 text-[14px] font-semibold text-[#666];
+}
+
+.nav-button:hover {
+    @apply underline text-[#2e8b57];
+}
 
 /* Login and Register */ 
 .lr-page { 
@@ -151,6 +171,14 @@ body {
     @apply px-5 py-[40px];
 }
 
+.info-container > h2 {
+    @apply mb-[10px] text-center text-[28px];
+}
+
+.info-container > p {
+    @apply mb-[30px] text-center text-[16px] text-[#555];
+}
+
 .info-cards {
     @apply mx-auto flex max-w-[1000px] flex-wrap justify-center gap-[25px];
 }
@@ -198,4 +226,26 @@ body {
 
 .search-section input:focus {
     @apply border-[#2e8b57];
+}
+
+/* Messages. Scoped to p so they win over the centred grey .lr-container p. */
+p.error {
+    @apply rounded-lg border border-[#e0b4b4] bg-[#fdf2f2] px-[14px] py-3 text-left text-[14px] text-[#a33a3a];
+}
+
+p.success {
+    @apply rounded-lg border border-[#b4d8c2] bg-[#f1f9f4] px-[14px] py-3 text-left text-[14px] text-[#2e8b57];
+}
+
+/* Lets primary-button work on a Link as well as a button. */
+a.primary-button {
+    @apply block no-underline;
+}
+
+.hero-button {
+    @apply mx-auto mt-[25px] w-fit px-[25px];
+}
+
+.info-card .primary-button {
+    @apply mt-[20px];
 }
