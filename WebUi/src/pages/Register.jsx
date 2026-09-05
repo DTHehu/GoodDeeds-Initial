@@ -17,7 +17,6 @@ function Register() {
     const [busy, setBusy] = useState(false)
 
     async function tryUserRegister(email, password, name) {
-        // Enforces strict schema matching your API expectations for volunteers
         const body = { email, password, name };
         return await api.post('/auth/register', body);
     }
