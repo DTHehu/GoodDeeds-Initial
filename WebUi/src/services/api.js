@@ -64,6 +64,11 @@ export async function callApi(path, method, body, isRetry) {
         "Request failed: " + response.status + " - " + errorText
     );
     }
+    if (response.status === 204) {
+        return null;
+    }
+    
+    return await response.json();
 }
 
 export const api = {
