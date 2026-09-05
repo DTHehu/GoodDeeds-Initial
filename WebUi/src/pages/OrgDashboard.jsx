@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { api } from '../services/api'
 import "../css/index.css"
 
 function OrgDashboard() {
@@ -10,33 +11,58 @@ function OrgDashboard() {
     const [location, setLocation] = useState("")
     const [startTime, setStartTime] = useState("")
     const [endTime, setEndTime] = useState("")
+    const [events, setEvents] = useState([])
+    const [error, setError] = useState("")
+
+    async function loadEvents() {
+        const [user, allEvents] = await Promise.all([
+            api.get('/auth/me'),
+            api.get('/events/events')
+        ])
+
+        const orgId = user.organization ? user.organization.id : null
+
+        return allEvents.filter((event) => event.organizationId === orgId)
+    }
+
+    useEffect(() => {
+
+        let cancelled = false
+
+        loadEvents()
+            .then((orgEvents) => {
+                if (cancelled) return
+
+                setEvents(orgEvents)
+                setError("")
+            })
+            .catch((requestError) => {
+                if (cancelled) return
+
+                console.error(requestError)
+                setError("Could not load your events.")
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [])
 
     async function addEvent(e) {
         e.preventDefault()
 
         const newEvent = {
-            organizationId: "orgID",
             title: eventName,
             description: description,
             location: location,
-            startTime: startTime,
-            endTime: endTime
+            // datetime-local has no timezone. Reading it through Date treats it
+            // as the browser's local time, and toISOString converts to UTC.
+            startTime: new Date(startTime).toISOString(),
+            endTime: new Date(endTime).toISOString()
         }
 
         try {
-            const response = await fetch("http://localhost:5160/api/events", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(newEvent)
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to create event")
-            }
-
-            alert("Event created successfully!")
+            await api.post('/events', newEvent)
 
             setEventName("")
             setDescription("")
@@ -44,6 +70,8 @@ function OrgDashboard() {
             setStartTime("")
             setEndTime("")
             setShowForm(false)
+
+            setEvents(await loadEvents())
 
         } catch (error) {
             console.error(error)
@@ -157,7 +185,37 @@ function OrgDashboard() {
 
                         <h2>Your Events</h2>
 
+                        {error && <p className="error">{error}</p>}
+
                         <div className="info-cards">
+
+                            {events.map((event) => (
+
+                                <div className="info-card" key={event.id}>
+
+                                    <h3>{event.title}</h3>
+
+                                    <p>{event.description}</p>
+
+                                    <p>
+                                        <strong>Location:</strong>{" "}
+                                        {event.location}
+                                    </p>
+
+                                    <p>
+                                        <strong>Start:</strong>{" "}
+                                        {new Date(event.startTime).toLocaleString()}
+                                    </p>
+
+                                    <p>
+                                        <strong>End:</strong>{" "}
+                                        {new Date(event.endTime).toLocaleString()}
+                                    </p>
+
+                                </div>
+
+                            ))}
+
                         </div>
 
                     </section>

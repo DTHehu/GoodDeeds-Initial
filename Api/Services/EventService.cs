@@ -60,17 +60,26 @@ public class EventService
             Title = eventEntity.Title
         };
     }
-    public async Task<EventDto> CreateEvent(EventDto eventDto, Guid userId)
+    /// <summary>Returns null if the user does not belong to an organization.</summary>
+    public async Task<EventDto?> CreateEvent(EventDto eventDto, Guid userId)
     {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user?.OrganizationId == null)
+        {
+            return null;
+        }
+
         var newEvent = new Event()
         {
             Id = Guid.NewGuid(),
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow,
             Description = eventDto.Description,
-            EndTime = eventDto.EndTime,
+            // Postgres timestamptz only accepts a UTC offset.
+            EndTime = eventDto.EndTime.ToUniversalTime(),
             Location = eventDto.Location,
-            OrganizationId = userId,
-            StartTime = eventDto.StartTime,
+            OrganizationId = user.OrganizationId.Value,
+            StartTime = eventDto.StartTime.ToUniversalTime(),
             Title = eventDto.Title
         };
 

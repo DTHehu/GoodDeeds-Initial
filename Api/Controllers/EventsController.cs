@@ -49,7 +49,17 @@ public class EventsController : ControllerBase
             return Unauthorized();
         }
 
+        if (eventDto.EndTime <= eventDto.StartTime)
+        {
+            return BadRequest("End time must be after start time.");
+        }
+
         var createdEvent = await _events.CreateEvent(eventDto, CurrentUserId.Value);
+
+        if (createdEvent == null)
+        {
+            return Forbid();
+        }
 
         return CreatedAtAction(nameof(GetEventById), new { id = createdEvent.Id }, createdEvent);
     }
