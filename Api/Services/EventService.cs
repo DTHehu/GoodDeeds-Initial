@@ -98,4 +98,9 @@ public class EventService
             Title = newEvent.Title
         };
     }
+
+    /*public async Task<EventDto?> RegisterForEvent(Guid eventId){
+
+    }*/
+
 }

@@ -40,15 +40,13 @@ function VolDashboard() {
 
         return (event.title || "").toLowerCase().includes(term) ||
             (event.description || "").toLowerCase().includes(term) ||
-            (event.location || "").toLowerCase().includes(term)
+            (event.location || "").toLowerCase().includes(term) 
     })
 
     return (
         <div className="home-page">
 
             <Navbar />
-
-
             {/* About Section */}
             <section className="about">
 
@@ -117,11 +115,18 @@ function VolDashboard() {
                                   {showPopup && (
                                       <div className="popup">
                                         <div className="popup-content">
-                                          <h2>More Information</h2>
-
-                                           <h3>{event.title}</h3>
+                                          <p>
+                                            <strong>Organization:</strong>{" "}
+                                            {event.organizationid}
+                                          </p>
 
                                           <p>
+                                            <strong>Title:</strong>{" "}
+                                            {event.title}
+                                          </p>
+
+                                          <p>
+                                              <strong>Description:</strong>{" "}
                                               {event.description}
                                           </p>
 
