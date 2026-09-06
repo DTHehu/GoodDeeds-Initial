@@ -13,6 +13,7 @@ function OrgDashboard() {
     const [endTime, setEndTime] = useState("")
     const [events, setEvents] = useState([])
     const [error, setError] = useState("")
+    const [showPopup, setShowPopup] = useState(false)
 
     async function loadEvents() {
         const [user, allEvents] = await Promise.all([
@@ -178,35 +179,59 @@ function OrgDashboard() {
 
                         <div className="info-cards">
 
-                            {events.map((event) => (
+                          {events.map((event) => (
 
-                                <div className="info-card" key={event.id}>
+                              <div className="info-card" key={event.id}>
 
-                                    <h3>{event.title}</h3>
+                                  <h3>{event.title}</h3>
 
-                                    <p>{event.description}</p>
+                                  <p>
+                                      <strong>Location:</strong>{" "}
+                                      {event.location}
+                                  </p>
 
-                                    <p>
-                                        <strong>Location:</strong>{" "}
-                                        {event.location}
-                                    </p>
+                                  <p>
+                                    <strong>Start:</strong>{" "}
+                                    {new Date(event.startTime).toLocaleString()}
+                                  </p>
+                                  
+                                  <p>
+                                    <strong>End:</strong>{" "}
+                                    {new Date(event.endTime).toLocaleString()}
+                                  </p>
 
-                                    <p>
-                                        <strong>Start:</strong>{" "}
-                                        {new Date(event.startTime).toLocaleString()}
-                                    </p>
+                                  <div className="card-buttons">
+                                      <button
+                                          onClick={() => setShowPopup(true)}
+                                          className="primary-button"
+                                      >
+                                          View Volunteers
+                                      </button>
+                                        {showPopup && (
+                                            <div className="popup">
+                                              <div className="popup-content">
 
-                                    <p>
-                                        <strong>End:</strong>{" "}
-                                        {new Date(event.endTime).toLocaleString()}
-                                    </p>
+                                                <p>
+                                                  <strong>Title:</strong>{" "}
+                                                  {event.title}
+                                                </p>
 
-                                </div>
+                                                <button onClick={() => setShowPopup(false)} 
+                                                  className="primary-button">
+                                                    Close
+                                                </button>
+                                                
+                                                </div>
+                                            </div>
+                                        )}
 
-                            ))}
+                                  </div>
 
-                        </div>
+                              </div>
 
+                          ))}
+
+                      </div>
                     </section>
 
                 </main>

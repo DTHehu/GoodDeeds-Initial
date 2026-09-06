@@ -63,4 +63,23 @@ public class EventsController : ControllerBase
 
         return CreatedAtAction(nameof(GetEventById), new { id = createdEvent.Id }, createdEvent);
     }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> RegisterEvent([FromBody] EventRegestrationRequest eventRegestrationRequest) 
+    {
+        if (CurrentUserId == null) 
+        {
+            return Unauthorized();
+        }
+
+        var isRegistered = await _events.RegisterForEvent(CurrentUserId.Value, eventRegestrationRequest);
+
+        if (!isRegistered) 
+        {
+            return BadRequest("Failed to Register Event.");
+        }
+
+        return Ok();
+    }
+
 }

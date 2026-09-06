@@ -99,8 +99,25 @@ public class EventService
         };
     }
 
-    /*public async Task<EventDto?> RegisterForEvent(Guid eventId){
+    public async Task<bool> RegisterForEvent(Guid userId, EventRegestrationRequest request)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user?.OrganizationId != null) 
+        {
+            return false;
+        }
 
-    }*/
+        var registrationEntity = new EventRegistration() 
+        {
+            EventId = request.EventId,
+            UserId = userId,
+            RegisteredAt = DateTimeOffset.UtcNow
+        };
+
+        await _db.EventRegistrations.AddAsync(registrationEntity);
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
 
 }
