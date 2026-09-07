@@ -10,11 +10,13 @@ public class OrganizationService
 {
     private readonly AppDbContext _db;
     private readonly UserManager<AppUser> _userManager;
+    private readonly RedisCacheService _cache;
 
-    public OrganizationService(AppDbContext db, UserManager<AppUser> userManager)
+    public OrganizationService(AppDbContext db, UserManager<AppUser> userManager, RedisCacheService cache)
     {
         _db = db;
         _userManager = userManager;
+        _cache = cache;
     }
 
     /// <summary>False means the contact email was taken, the login email was taken, or the password was rejected.</summary>
@@ -63,7 +65,15 @@ public class OrganizationService
 
     public async Task<OrganizationDto?> GetByIdAsync(Guid id)
     {
-        return await _db.Organizations
+        var cacheKey = $"org:{id}";
+
+        var cached = await _cache.GetAsync<OrganizationDto>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var organization = await _db.Organizations
             .Where(o => o.Id == id)
             .Select(o => new OrganizationDto
             {
@@ -75,5 +85,12 @@ public class OrganizationService
                 Description = o.Description
             })
             .FirstOrDefaultAsync();
+
+        if (organization != null)
+        {
+            await _cache.SetAsync(cacheKey, organization);
+        }
+
+        return organization;
     }
 }

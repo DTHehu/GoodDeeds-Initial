@@ -12,6 +12,7 @@ function VolDashboard() {
     const [registerError, setRegisterError] = useState("")
     const [submitting, setSubmitting] = useState(false)
     const [registered, setRegistered] = useState(false)
+    const [organizationName, setOrganizationName] = useState("")
 
     useEffect(() => {
 
@@ -49,9 +50,16 @@ function VolDashboard() {
         setSelectedEvent(event)
         setRegisterError("")
         setRegistered(false)
+        setOrganizationName("")
 
         try {
-            setRegistered(await api.get(`/events/${event.id}/registration`))
+            const [isRegistered, organization] = await Promise.all([
+                api.get(`/events/${event.id}/registration`),
+                api.get(`/organizations/${event.organizationId}`)
+            ])
+
+            setRegistered(isRegistered)
+            setOrganizationName(organization.name)
         } catch (err) {
             console.error(err)
         }
@@ -176,7 +184,7 @@ function VolDashboard() {
 
                         <p>
                             <strong>Organization:</strong>{" "}
-                            {selectedEvent.organizationId}
+                            {organizationName}
                         </p>
 
                         <p>
