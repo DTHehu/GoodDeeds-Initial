@@ -7,7 +7,6 @@ import "../css/index.css"
 function Login() {
     const navigate = useNavigate()
 
-    const [accountType, setAccountType] = useState('volunteer')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -69,22 +68,8 @@ function Login() {
                 <div className="lr-container">
                     <h1>Login</h1>
                     <p>
-                        Choose your account type to continue.
+                        Volunteer or organization, sign in below.
                     </p>
-
-                    <div className="account-type">
-                        <button type="button" className={
-                            accountType === 'volunteer' ? 'account-button active' : 'account-button'
-                        } onClick={() => setAccountType('volunteer')}>
-                            Volunteer
-                        </button>
-
-                        <button type="button" className={
-                            accountType === 'organization' ? 'account-button active' : 'account-button'
-                        } onClick={() => setAccountType('organization')}>
-                            Organization
-                        </button>
-                    </div>
 
                     <form className="login-form" onSubmit={handleSubmit}>
                         <div className="form-group">
@@ -112,9 +97,7 @@ function Login() {
                         {error && <p className="error">{error}</p>}
 
                         <button type="submit" className="primary-button" disabled={busy}>
-                            {busy
-                                ? 'Signing in...'
-                                : `Login as ${accountType === 'volunteer' ? 'Volunteer' : 'Organization'}`}
+                            {busy ? 'Signing in...' : 'Login'}
                         </button>
                     </form>
 
