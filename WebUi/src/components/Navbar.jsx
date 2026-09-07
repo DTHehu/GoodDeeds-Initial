@@ -22,6 +22,7 @@ function Navbar() {
                 {loggedIn ? (
                     <>
                         <Link to={getDashboardPath()}>Dashboard</Link>
+                        <Link to="/organizations">Organizations</Link>
 
                         <button type="button" className="nav-button" onClick={logOut}>
                             Log out

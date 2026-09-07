@@ -16,6 +16,12 @@ public class OrganizationsController : ControllerBase
         _organizations = organizations;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        return Ok(await _organizations.GetAllAsync());
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {

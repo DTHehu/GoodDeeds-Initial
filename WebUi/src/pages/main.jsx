@@ -7,6 +7,7 @@ import OrgDashboard from './OrgDashboard.jsx'
 import VolDashboard from './VolDashboard.jsx' 
 import Register from './Register.jsx'
 import Login from './Login.jsx'
+import Organizations from './Organizations.jsx'
 import ProtectedRoute from '../components/ProtectedRoute.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -31,6 +32,15 @@ createRoot(document.getElementById('root')).render(
           element={
             <ProtectedRoute>
               <VolDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/organizations"
+          element={
+            <ProtectedRoute>
+              <Organizations />
             </ProtectedRoute>
           }
         />

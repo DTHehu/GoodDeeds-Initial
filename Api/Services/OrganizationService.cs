@@ -63,6 +63,21 @@ public class OrganizationService
         return true;
     }
 
+    public async Task<List<OrganizationDto>> GetAllAsync()
+    {
+        return await _db.Organizations
+            .Select(o => new OrganizationDto
+            {
+                Id = o.Id,
+                Name = o.Name,
+                ContactEmail = o.ContactEmail,
+                PhoneNumber = o.PhoneNumber,
+                CreatedAt = o.CreatedAt,
+                Description = o.Description
+            })
+            .ToListAsync();
+    }
+
     public async Task<OrganizationDto?> GetByIdAsync(Guid id)
     {
         var cacheKey = $"org:{id}";
