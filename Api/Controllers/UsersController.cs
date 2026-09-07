@@ -36,7 +36,8 @@ public class UsersController : ControllerBase {
         Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
 
     [HttpPut("me")]
-    public async Task<ActionResult<UserDto>> UpdateMe([FromBody] UpdateUserRequest request) {
+    public async Task<ActionResult<UserDto>> UpdateMe([FromBody] UpdateUserRequest request) 
+    {
         if (CurrentUserId == null) {
             return Unauthorized();
         }
@@ -47,10 +48,12 @@ public class UsersController : ControllerBase {
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOrganizationById(Guid id) {
+    public async Task<IActionResult> GetOrganizationById(Guid id) 
+    {
         var organizationDto = await _organizations.GetByIdAsync(id);
 
-        if (organizationDto == null) {
+        if (organizationDto == null) 
+        {
             return NotFound();
         }
 

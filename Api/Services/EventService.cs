@@ -120,4 +120,17 @@ public class EventService
         return true;
     }
 
+    public async Task<List<object>> GetEventRegistrations(Guid eventId) 
+    {
+        return await _db.EventRegistrations
+            .Where(r => r.EventId == eventId)
+            .Select(r => new {
+                UserId = r.UserId,
+                Name = r.User.Name,
+                Email = r.User.Email,
+                Status = r.Status,
+                RegisteredAt = r.RegisteredAt
+            })
+            .ToListAsync<object>();
+    }
 }

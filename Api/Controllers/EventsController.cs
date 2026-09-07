@@ -82,4 +82,18 @@ public class EventsController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{id}/registrations")]
+    public async Task<IActionResult> GetEventRegistrations(Guid id) 
+    {
+
+        if (CurrentUserId == null) 
+        {
+            return Unauthorized();
+        }
+
+        var registrations = await _events.GetEventRegistrations(id);
+
+        return Ok(registrations);
+    }
+
 }
