@@ -82,6 +82,17 @@ public class EventsController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("registered")]
+    public async Task<IActionResult> GetRegisteredEvents()
+    {
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await _events.GetRegisteredEvents(CurrentUserId.Value));
+    }
+
     [HttpGet("{id}/registration")]
     public async Task<IActionResult> GetRegistrationStatus(Guid id)
     {

@@ -135,6 +135,24 @@ public class EventService
         return true;
     }
 
+    public async Task<List<EventDto>> GetRegisteredEvents(Guid userId)
+    {
+        return await _db.EventRegistrations
+            .Where(r => r.UserId == userId)
+            .Select(r => new EventDto
+            {
+                Id = r.Event.Id,
+                CreatedAt = r.Event.CreatedAt,
+                Description = r.Event.Description,
+                EndTime = r.Event.EndTime,
+                Location = r.Event.Location,
+                OrganizationId = r.Event.OrganizationId,
+                StartTime = r.Event.StartTime,
+                Title = r.Event.Title
+            })
+            .ToListAsync();
+    }
+
     public async Task<bool> IsRegistered(Guid userId, Guid eventId)
     {
         return await _db.EventRegistrations.AnyAsync(r => r.EventId == eventId && r.UserId == userId);

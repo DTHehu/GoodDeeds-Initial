@@ -6,6 +6,7 @@ import "../css/index.css"
 function VolDashboard() {
 
     const [events, setEvents] = useState([])
+    const [registeredEvents, setRegisteredEvents] = useState([])
     const [search, setSearch] = useState("")
     const [error, setError] = useState("")
     const [selectedEvent, setSelectedEvent] = useState(null)
@@ -18,11 +19,15 @@ function VolDashboard() {
 
         let cancelled = false
 
-        api.get("/events/events")
-            .then((data) => {
+        Promise.all([
+            api.get("/events/events"),
+            api.get("/events/registered")
+        ])
+            .then(([allEvents, myEvents]) => {
                 if (cancelled) return
 
-                setEvents(data)
+                setEvents(allEvents)
+                setRegisteredEvents(myEvents)
                 setError("")
             })
             .catch((requestError) => {
@@ -36,6 +41,10 @@ function VolDashboard() {
             cancelled = true
         }
     }, [])
+
+    function loadRegisteredEvents() {
+        api.get("/events/registered").then(setRegisteredEvents).catch(console.error)
+    }
 
     const filteredEvents = events.filter((event) => {
 
@@ -76,6 +85,7 @@ function VolDashboard() {
         try {
             await api.post("/events/register", { eventId: selectedEvent.id })
             setRegistered(true)
+            loadRegisteredEvents()
         } catch (err) {
             console.error(err)
             setRegisterError(err.message || "Could not register for this event.")
@@ -91,6 +101,7 @@ function VolDashboard() {
         try {
             await api.del(`/events/${selectedEvent.id}/register`)
             setRegistered(false)
+            loadRegisteredEvents()
         } catch (err) {
             console.error(err)
             setRegisterError(err.message || "Could not unregister from this event.")
@@ -103,80 +114,115 @@ function VolDashboard() {
         <div className="home-page">
 
             <Navbar />
-            {/* About Section */}
-            <section className="about">
 
-                <h2>VOLUNTEER DASHBOARD</h2>
+            <div className="dashboard">
 
-                <p>
-                    Connect with organizations and find opportunities
-                    to make a difference in your community.
-                </p>
+                {/* Sidebar */}
+                <aside className="sidebar">
 
-            </section>
+                    <h3>My Events</h3>
 
-
-            {/* Search */}
-            <section className="search-section">
-
-                <h2>Find an Opportunity</h2>
-
-                <input
-                    type="text"
-                    placeholder="Search events..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-
-            </section>
-
-
-            {/* Events */}
-            <section className="info-container">
-
-                <h2>Volunteer Opportunities</h2>
-
-                {error && <p className="error">{error}</p>}
-
-                <div className="info-cards">
-
-                    {filteredEvents.map((event) => (
-
-                        <div className="info-card" key={event.id}>
-
-                            <h3>{event.title}</h3>
-
-                            <p>
-                                <strong>Location:</strong>{" "}
-                                {event.location}
-                            </p>
-
-                            <p>
-                              <strong>Start:</strong>{" "}
-                              {new Date(event.startTime).toLocaleString()}
-                            </p>
-
-                            <p>
-                              <strong>End:</strong>{" "}
-                              {new Date(event.endTime).toLocaleString()}
-                            </p>
-
-                            <div className="card-buttons">
-                                <button
+                    {registeredEvents.length === 0 ? (
+                        <p>You haven't registered for any events yet.</p>
+                    ) : (
+                        <div className="sidebar-list">
+                            {registeredEvents.map((event) => (
+                                <div
+                                    key={event.id}
+                                    className="sidebar-list-item"
                                     onClick={() => openPopup(event)}
-                                    className="primary-button"
                                 >
-                                    More Information
-                                </button>
-                            </div>
+                                    <strong>{event.title}</strong>
+                                    <span>{new Date(event.startTime).toLocaleDateString()}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                </aside>
+
+
+                {/* Dashboard Content */}
+                <main className="dashboard-content">
+
+                    {/* About Section */}
+                    <section className="about">
+
+                        <h2>VOLUNTEER DASHBOARD</h2>
+
+                        <p>
+                            Connect with organizations and find opportunities
+                            to make a difference in your community.
+                        </p>
+
+                    </section>
+
+
+                    {/* Search */}
+                    <section className="search-section">
+
+                        <h2>Find an Opportunity</h2>
+
+                        <input
+                            type="text"
+                            placeholder="Search events..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+
+                    </section>
+
+
+                    {/* Events */}
+                    <section className="info-container">
+
+                        <h2>Volunteer Opportunities</h2>
+
+                        {error && <p className="error">{error}</p>}
+
+                        <div className="info-cards">
+
+                            {filteredEvents.map((event) => (
+
+                                <div className="info-card" key={event.id}>
+
+                                    <h3>{event.title}</h3>
+
+                                    <p>
+                                        <strong>Location:</strong>{" "}
+                                        {event.location}
+                                    </p>
+
+                                    <p>
+                                      <strong>Start:</strong>{" "}
+                                      {new Date(event.startTime).toLocaleString()}
+                                    </p>
+
+                                    <p>
+                                      <strong>End:</strong>{" "}
+                                      {new Date(event.endTime).toLocaleString()}
+                                    </p>
+
+                                    <div className="card-buttons">
+                                        <button
+                                            onClick={() => openPopup(event)}
+                                            className="primary-button"
+                                        >
+                                            More Information
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            ))}
 
                         </div>
 
-                    ))}
+                    </section>
 
-                </div>
+                </main>
 
-            </section>
+            </div>
 
             {selectedEvent && (
                 <div className="popup">
