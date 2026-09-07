@@ -149,18 +149,38 @@ body {
     @apply underline text-[#2e8b57]; 
 }
 
-/*Organization Dashboard*/
+/*Dashboards*/
 .dashboard {
     @apply flex;
 }
 
 .sidebar {
-    @apply min-h-[calc(100vh-73px)] w-[220px] bg-white p-[25px];
+    @apply min-h-[calc(100vh-73px)] w-[300px] shrink-0 bg-white p-[25px];
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
 }
 
 .sidebar h3 {
     @apply mb-[25px] text-[#2e8b57];
+}
+
+.sidebar-list {
+    @apply mt-[20px] flex flex-col gap-[10px];
+}
+
+.sidebar-list-item {
+    @apply cursor-pointer rounded-lg border border-[#eee] p-[12px] text-left text-[14px];
+}
+
+.sidebar-list-item:hover {
+    @apply border-[#2e8b57] bg-[#f5f7fa];
+}
+
+.sidebar-list-item strong {
+    @apply block text-[#333];
+}
+
+.sidebar-list-item span {
+    @apply text-[#777];
 }
 
 .dashboard-content {
@@ -197,21 +217,7 @@ body {
 }
 
 .event-form {
-    @apply mt-[20px] flex flex-col gap-[10px];
-}
-
-.event-form input,
-.event-form textarea {
-    @apply box-border w-full rounded-lg border border-[#ccc] p-[10px] text-[14px] outline-none;
-}
-
-.event-form textarea {
-    @apply min-h-[100px] resize-y;
-}
-
-.event-form input:focus,
-.event-form textarea:focus {
-    @apply border-[#2e8b57];
+    @apply mt-[20px] flex flex-col gap-[18px] border-t border-[#eee] pt-[20px];
 }
 
 /* Search */

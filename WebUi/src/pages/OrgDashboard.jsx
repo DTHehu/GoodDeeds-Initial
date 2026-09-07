@@ -121,55 +121,60 @@ function OrgDashboard() {
                         className="primary-button"
                         onClick={() => setShowForm(!showForm)}
                     >
-                        Add Event
+                        {showForm ? "Cancel" : "Add Event"}
                     </button>
 
                     {showForm && (
-                        <form className="form" onSubmit={addEvent}>
+                        <form className="event-form" onSubmit={addEvent}>
 
-                            <label>Event Name</label>
-                            <input
-                                className="input"
-                                type="text"
-                                value={eventName}
-                                onChange={(e) => setEventName(e.target.value)}
-                                required
-                            />
+                            <div className="form-group">
+                                <label>Event Name</label>
+                                <input
+                                    type="text"
+                                    value={eventName}
+                                    onChange={(e) => setEventName(e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                            <label>Description</label>
-                            <textarea
-                                className="input"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                required
-                            />
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                            <label>Location</label>
-                            <input
-                                className="input"
-                                type="text"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                required
-                            />
+                            <div className="form-group">
+                                <label>Location</label>
+                                <input
+                                    type="text"
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                            <label>Start Time</label>
-                            <input
-                                className="input"
-                                type="datetime-local"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
-                                required
-                            />
+                            <div className="form-group">
+                                <label>Start Time</label>
+                                <input
+                                    type="datetime-local"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
+                                    required
+                                />
+                            </div>
 
-                            <label>End Time</label>
-                            <input
-                                className="input"
-                                type="datetime-local"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
-                                required
-                            />
+                            <div className="form-group">
+                                <label>End Time</label>
+                                <input
+                                    type="datetime-local"
+                                    value={endTime}
+                                    onChange={(e) => setEndTime(e.target.value)}
+                                    required
+                                />
+                            </div>
 
                             <button type="submit" className="primary-button">
                                 Create Event
