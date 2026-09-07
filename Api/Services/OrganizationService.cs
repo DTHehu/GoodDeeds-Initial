@@ -67,4 +67,10 @@ public class OrganizationService
 
         return true;
     }
+
+    public async Task<Organization?> GetByIdAsync(Guid id) {
+        return await _db.Organizations
+            .FirstOrDefaultAsync(o => o.Id == id);
+    }
+
 }
