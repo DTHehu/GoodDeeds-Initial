@@ -61,39 +61,43 @@ public class EventsController : ControllerBase
             return Forbid();
         }
 
-        return CreatedAtAction(nameof(GetEventById), new { id = createdEvent.Id }, createdEvent);
+        return Ok(createdEvent);
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterEvent([FromBody] EventRegestrationRequest eventRegestrationRequest) 
+    public async Task<IActionResult> RegisterEvent([FromBody] EventRegistrationRequest eventRegistrationRequest)
     {
-        if (CurrentUserId == null) 
+        if (CurrentUserId == null)
         {
             return Unauthorized();
         }
 
-        var isRegistered = await _events.RegisterForEvent(CurrentUserId.Value, eventRegestrationRequest);
+        var isRegistered = await _events.RegisterForEvent(CurrentUserId.Value, eventRegistrationRequest);
 
-        if (!isRegistered) 
+        if (!isRegistered)
         {
-            return BadRequest("Failed to Register Event.");
+            return BadRequest("That event does not exist, or you are already registered for it.");
         }
 
         return Ok();
     }
 
+    /// <summary>Organizers only: the attendee list for one of their own events.</summary>
     [HttpGet("{id}/registrations")]
-    public async Task<IActionResult> GetEventRegistrations(Guid id) 
+    public async Task<IActionResult> GetEventRegistrations(Guid id)
     {
-
-        if (CurrentUserId == null) 
+        if (CurrentUserId == null)
         {
             return Unauthorized();
         }
 
-        var registrations = await _events.GetEventRegistrations(id);
+        var registrations = await _events.GetEventRegistrations(id, CurrentUserId.Value);
+
+        if (registrations == null)
+        {
+            return NotFound();
+        }
 
         return Ok(registrations);
     }
-
 }

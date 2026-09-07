@@ -13,7 +13,10 @@ function OrgDashboard() {
     const [endTime, setEndTime] = useState("")
     const [events, setEvents] = useState([])
     const [error, setError] = useState("")
-    const [showPopup, setShowPopup] = useState(false)
+
+    const [selectedEvent, setSelectedEvent] = useState(null)
+    const [registrations, setRegistrations] = useState([])
+    const [registrationsError, setRegistrationsError] = useState("")
 
     async function loadEvents() {
         const [user, allEvents] = await Promise.all([
@@ -64,20 +67,44 @@ function OrgDashboard() {
 
         try {
             await api.post('/events', newEvent)
-
-            setEventName("")
-            setDescription("")
-            setLocation("")
-            setStartTime("")
-            setEndTime("")
-            setShowForm(false)
-
-            setEvents(await loadEvents())
-
         } catch (error) {
             console.error(error)
             alert("There was a problem creating the event.")
+            return
         }
+
+        setEventName("")
+        setDescription("")
+        setLocation("")
+        setStartTime("")
+        setEndTime("")
+        setShowForm(false)
+
+        // The event was already created above; a failure here only means the
+        // list on screen is stale, not that creation failed.
+        try {
+            setEvents(await loadEvents())
+        } catch (error) {
+            console.error(error)
+            setError("Event created, but the list could not be refreshed. Reload the page to see it.")
+        }
+    }
+
+    async function viewVolunteers(event) {
+        setSelectedEvent(event)
+        setRegistrations([])
+        setRegistrationsError("")
+
+        try {
+            setRegistrations(await api.get(`/events/${event.id}/registrations`))
+        } catch (requestError) {
+            console.error(requestError)
+            setRegistrationsError("Could not load volunteers for this event.")
+        }
+    }
+
+    function closePopup() {
+        setSelectedEvent(null)
     }
 
     return (
@@ -194,7 +221,7 @@ function OrgDashboard() {
                                     <strong>Start:</strong>{" "}
                                     {new Date(event.startTime).toLocaleString()}
                                   </p>
-                                  
+
                                   <p>
                                     <strong>End:</strong>{" "}
                                     {new Date(event.endTime).toLocaleString()}
@@ -202,29 +229,11 @@ function OrgDashboard() {
 
                                   <div className="card-buttons">
                                       <button
-                                          onClick={() => setShowPopup(true)}
+                                          onClick={() => viewVolunteers(event)}
                                           className="primary-button"
                                       >
                                           View Volunteers
                                       </button>
-                                        {showPopup && (
-                                            <div className="popup">
-                                              <div className="popup-content">
-
-                                                <p>
-                                                  <strong>Title:</strong>{" "}
-                                                  {event.title}
-                                                </p>
-
-                                                <button onClick={() => setShowPopup(false)} 
-                                                  className="primary-button">
-                                                    Close
-                                                </button>
-                                                
-                                                </div>
-                                            </div>
-                                        )}
-
                                   </div>
 
                               </div>
@@ -237,6 +246,36 @@ function OrgDashboard() {
                 </main>
 
             </div>
+
+            {selectedEvent && (
+                <div className="popup">
+                    <div className="popup-content">
+
+                        <p>
+                            <strong>Event:</strong>{" "}
+                            {selectedEvent.title}
+                        </p>
+
+                        {registrationsError && <p className="error">{registrationsError}</p>}
+
+                        {!registrationsError && registrations.length === 0 && (
+                            <p>No one has registered yet.</p>
+                        )}
+
+                        {registrations.map((registration) => (
+                            <p key={registration.userId}>
+                                {registration.name} &mdash; {registration.email}{" "}
+                                ({registration.status})
+                            </p>
+                        ))}
+
+                        <button onClick={closePopup} className="primary-button">
+                            Close
+                        </button>
+
+                    </div>
+                </div>
+            )}
 
         </div>
     )

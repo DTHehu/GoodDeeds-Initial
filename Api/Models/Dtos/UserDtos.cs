@@ -14,12 +14,11 @@ public record UserDto(
 public class OrganizationDto
 {
     public Guid Id { get; set; }
-    public  string Name { get; set; }
-    public  string ContactEmail { get; set; }
-    public  string? PhoneNumber { get; set; }
-    public  DateTimeOffset CreatedAt { get; set; }
-    public string Description { get; set; }
-    
+    public string Name { get; set; } = null!;
+    public string ContactEmail { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public string? Description { get; set; }
 }
 
 public record UpdateUserRequest(

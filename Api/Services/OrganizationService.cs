@@ -68,9 +68,19 @@ public class OrganizationService
         return true;
     }
 
-    public async Task<Organization?> GetByIdAsync(Guid id) {
+    public async Task<OrganizationDto?> GetByIdAsync(Guid id)
+    {
         return await _db.Organizations
-            .FirstOrDefaultAsync(o => o.Id == id);
+            .Where(o => o.Id == id)
+            .Select(o => new OrganizationDto
+            {
+                Id = o.Id,
+                Name = o.Name,
+                ContactEmail = o.ContactEmail,
+                PhoneNumber = o.PhoneNumber,
+                CreatedAt = o.CreatedAt,
+                Description = o.Description
+            })
+            .FirstOrDefaultAsync();
     }
-
 }

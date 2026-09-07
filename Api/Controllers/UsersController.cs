@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using GoodDeedsApi.Data;
-using GoodDeedsApi.Models;
 using GoodDeedsApi.Models.Dtos;
 using GoodDeedsApi.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -17,15 +15,13 @@ namespace GoodDeedsApi.Controllers;
 [ApiController]
 [Route("api/users")]
 [Authorize(Policy = Policies.AuthenticatedUser)]
-public class UsersController : ControllerBase {
+public class UsersController : ControllerBase
+{
     private readonly UserService _users;
-    private readonly OrganizationService _organizations;
 
-
-    public UsersController(UserService users, OrganizationService organizations)
+    public UsersController(UserService users)
     {
         _users = users;
-        _organizations = organizations;
     }
 
     /// <summary>
@@ -36,27 +32,15 @@ public class UsersController : ControllerBase {
         Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
 
     [HttpPut("me")]
-    public async Task<ActionResult<UserDto>> UpdateMe([FromBody] UpdateUserRequest request) 
+    public async Task<ActionResult<UserDto>> UpdateMe([FromBody] UpdateUserRequest request)
     {
-        if (CurrentUserId == null) {
+        if (CurrentUserId == null)
+        {
             return Unauthorized();
         }
 
         var updated = await _users.UpdateAsync(CurrentUserId.Value, request);
 
         return updated == null ? NotFound() : Ok(updated);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetOrganizationById(Guid id) 
-    {
-        var organizationDto = await _organizations.GetByIdAsync(id);
-
-        if (organizationDto == null) 
-        {
-            return NotFound();
-        }
-
-        return Ok(organizationDto);
     }
 }

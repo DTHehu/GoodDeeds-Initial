@@ -8,7 +8,10 @@ function VolDashboard() {
     const [events, setEvents] = useState([])
     const [search, setSearch] = useState("")
     const [error, setError] = useState("")
-    const [showPopup, setShowPopup] = useState(false)
+    const [selectedEvent, setSelectedEvent] = useState(null)
+    const [registerError, setRegisterError] = useState("")
+    const [registering, setRegistering] = useState(false)
+    const [registered, setRegistered] = useState(false)
 
     useEffect(() => {
 
@@ -39,8 +42,33 @@ function VolDashboard() {
 
         return (event.title || "").toLowerCase().includes(term) ||
             (event.description || "").toLowerCase().includes(term) ||
-            (event.location || "").toLowerCase().includes(term) 
+            (event.location || "").toLowerCase().includes(term)
     })
+
+    function openPopup(event) {
+        setSelectedEvent(event)
+        setRegisterError("")
+        setRegistered(false)
+    }
+
+    function closePopup() {
+        setSelectedEvent(null)
+    }
+
+    async function registerForEvent() {
+        setRegistering(true)
+        setRegisterError("")
+
+        try {
+            await api.post("/events/register", { eventId: selectedEvent.id })
+            setRegistered(true)
+        } catch (err) {
+            console.error(err)
+            setRegisterError(err.message || "Could not register for this event.")
+        }
+
+        setRegistering(false)
+    }
 
     return (
         <div className="home-page">
@@ -98,7 +126,7 @@ function VolDashboard() {
                               <strong>Start:</strong>{" "}
                               {new Date(event.startTime).toLocaleString()}
                             </p>
-                            
+
                             <p>
                               <strong>End:</strong>{" "}
                               {new Date(event.endTime).toLocaleString()}
@@ -106,57 +134,11 @@ function VolDashboard() {
 
                             <div className="card-buttons">
                                 <button
-                                    onClick={() => setShowPopup(true)}
+                                    onClick={() => openPopup(event)}
                                     className="primary-button"
                                 >
                                     More Information
                                 </button>
-                                  {showPopup && (
-                                      <div className="popup">
-                                        <div className="popup-content">
-                                          <p>
-                                            <strong>Organization:</strong>{" "}
-                                            {event.organizationid}
-                                          </p>
-
-                                          <p>
-                                            <strong>Title:</strong>{" "}
-                                            {event.title}
-                                          </p>
-
-                                          <p>
-                                              <strong>Description:</strong>{" "}
-                                              {event.description}
-                                          </p>
-
-                                          <p>
-                                              <strong>Location:</strong>{" "}
-                                              {event.location}
-                                          </p>
-
-                                          <p>
-                                            <strong>Start:</strong>{" "}
-                                            {new Date(event.startTime).toLocaleString()}
-                                          </p>
-                                          
-                                          <p>
-                                            <strong>End:</strong>{" "}
-                                            {new Date(event.endTime).toLocaleString()}
-                                          </p>
-
-                                          <button className="primary-button">
-                                              Register for Event
-                                          </button> {" "}
-
-                                          <button onClick={() => setShowPopup(false)} 
-                                            className="primary-button">
-                                              Close
-                                          </button>
-                                          
-                                          </div>
-                                      </div>
-                                  )}
-
                             </div>
 
                         </div>
@@ -166,6 +148,61 @@ function VolDashboard() {
                 </div>
 
             </section>
+
+            {selectedEvent && (
+                <div className="popup">
+                    <div className="popup-content">
+
+                        <p>
+                            <strong>Organization:</strong>{" "}
+                            {selectedEvent.organizationId}
+                        </p>
+
+                        <p>
+                            <strong>Title:</strong>{" "}
+                            {selectedEvent.title}
+                        </p>
+
+                        <p>
+                            <strong>Description:</strong>{" "}
+                            {selectedEvent.description}
+                        </p>
+
+                        <p>
+                            <strong>Location:</strong>{" "}
+                            {selectedEvent.location}
+                        </p>
+
+                        <p>
+                            <strong>Start:</strong>{" "}
+                            {new Date(selectedEvent.startTime).toLocaleString()}
+                        </p>
+
+                        <p>
+                            <strong>End:</strong>{" "}
+                            {new Date(selectedEvent.endTime).toLocaleString()}
+                        </p>
+
+                        {registerError && <p className="error">{registerError}</p>}
+                        {registered && <p className="success">You're registered for this event.</p>}
+
+                        {!registered && (
+                            <button
+                                className="primary-button"
+                                onClick={registerForEvent}
+                                disabled={registering}
+                            >
+                                {registering ? "Registering..." : "Register for Event"}
+                            </button>
+                        )} {" "}
+
+                        <button onClick={closePopup} className="primary-button">
+                            Close
+                        </button>
+
+                    </div>
+                </div>
+            )}
 
         </div>
     )

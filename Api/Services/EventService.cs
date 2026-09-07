@@ -82,8 +82,8 @@ public class EventService
             StartTime = eventDto.StartTime.ToUniversalTime(),
             Title = eventDto.Title
         };
-
-        _db.Events.Add(newEvent);
+        
+        await _db.Events.AddAsync(newEvent);
         await _db.SaveChangesAsync();
 
         return new EventDto()
@@ -99,15 +99,23 @@ public class EventService
         };
     }
 
-    public async Task<bool> RegisterForEvent(Guid userId, EventRegestrationRequest request)
+    /// <summary>False means the event does not exist, or the user is already registered for it.</summary>
+    public async Task<bool> RegisterForEvent(Guid userId, EventRegistrationRequest request)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user?.OrganizationId != null) 
+        if (!await _db.Events.AnyAsync(e => e.Id == request.EventId))
         {
             return false;
         }
 
-        var registrationEntity = new EventRegistration() 
+        var alreadyRegistered = await _db.EventRegistrations
+            .AnyAsync(r => r.EventId == request.EventId && r.UserId == userId);
+
+        if (alreadyRegistered)
+        {
+            return false;
+        }
+
+        var registrationEntity = new EventRegistration()
         {
             EventId = request.EventId,
             UserId = userId,
@@ -120,17 +128,31 @@ public class EventService
         return true;
     }
 
-    public async Task<List<object>> GetEventRegistrations(Guid eventId) 
+    /// <summary>Returns null if the event does not exist, or the caller's organization does not own it.</summary>
+    public async Task<List<EventRegistrationDto>?> GetEventRegistrations(Guid eventId, Guid callerId)
     {
+        var eventEntity = await _db.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+        if (eventEntity == null)
+        {
+            return null;
+        }
+
+        var caller = await _db.Users.FirstOrDefaultAsync(u => u.Id == callerId);
+        if (caller?.OrganizationId != eventEntity.OrganizationId)
+        {
+            return null;
+        }
+
         return await _db.EventRegistrations
             .Where(r => r.EventId == eventId)
-            .Select(r => new {
+            .Select(r => new EventRegistrationDto
+            {
                 UserId = r.UserId,
                 Name = r.User.Name,
                 Email = r.User.Email,
                 Status = r.Status,
                 RegisteredAt = r.RegisteredAt
             })
-            .ToListAsync<object>();
+            .ToListAsync();
     }
 }
