@@ -220,6 +220,29 @@ body {
     @apply mt-[20px] flex flex-col gap-[18px] border-t border-[#eee] pt-[20px];
 }
 
+.datetime-row {
+    @apply flex gap-[8px];
+}
+
+.datetime-row input {
+    @apply min-w-0 flex-1;
+}
+
+.event-form input[type="date"],
+.event-form input[type="time"] {
+    @apply cursor-pointer px-[8px] text-[13px];
+}
+
+.event-form input[type="date"]::-webkit-calendar-picker-indicator,
+.event-form input[type="time"]::-webkit-calendar-picker-indicator {
+    @apply cursor-pointer opacity-60;
+}
+
+.event-form input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.event-form input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    @apply opacity-100;
+}
+
 /* Search */
 
 .search-section {

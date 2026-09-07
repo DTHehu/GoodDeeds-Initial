@@ -9,8 +9,10 @@ function OrgDashboard() {
     const [eventName, setEventName] = useState("")
     const [description, setDescription] = useState("")
     const [location, setLocation] = useState("")
-    const [startTime, setStartTime] = useState("")
-    const [endTime, setEndTime] = useState("")
+    const [startDate, setStartDate] = useState("")
+    const [startClock, setStartClock] = useState("")
+    const [endDate, setEndDate] = useState("")
+    const [endClock, setEndClock] = useState("")
     const [events, setEvents] = useState([])
     const [error, setError] = useState("")
 
@@ -59,9 +61,9 @@ function OrgDashboard() {
             title: eventName,
             description: description,
             location: location,
-            // datetime-local has no timezone, so Date treats it as local time; toISOString converts to UTC.
-            startTime: new Date(startTime).toISOString(),
-            endTime: new Date(endTime).toISOString()
+            // No timezone in date/time inputs, so Date treats the combined string as local time; toISOString converts it to UTC.
+            startTime: new Date(`${startDate}T${startClock}`).toISOString(),
+            endTime: new Date(`${endDate}T${endClock}`).toISOString()
         }
 
         try {
@@ -75,8 +77,10 @@ function OrgDashboard() {
         setEventName("")
         setDescription("")
         setLocation("")
-        setStartTime("")
-        setEndTime("")
+        setStartDate("")
+        setStartClock("")
+        setEndDate("")
+        setEndClock("")
         setShowForm(false)
 
         // Event is already created; a failure here just means the list is stale.
@@ -157,23 +161,39 @@ function OrgDashboard() {
                             </div>
 
                             <div className="form-group">
-                                <label>Start Time</label>
-                                <input
-                                    type="datetime-local"
-                                    value={startTime}
-                                    onChange={(e) => setStartTime(e.target.value)}
-                                    required
-                                />
+                                <label>Start</label>
+                                <div className="datetime-row">
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        required
+                                    />
+                                    <input
+                                        type="time"
+                                        value={startClock}
+                                        onChange={(e) => setStartClock(e.target.value)}
+                                        required
+                                    />
+                                </div>
                             </div>
 
                             <div className="form-group">
-                                <label>End Time</label>
-                                <input
-                                    type="datetime-local"
-                                    value={endTime}
-                                    onChange={(e) => setEndTime(e.target.value)}
-                                    required
-                                />
+                                <label>End</label>
+                                <div className="datetime-row">
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        required
+                                    />
+                                    <input
+                                        type="time"
+                                        value={endClock}
+                                        onChange={(e) => setEndClock(e.target.value)}
+                                        required
+                                    />
+                                </div>
                             </div>
 
                             <button type="submit" className="primary-button">
