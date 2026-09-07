@@ -8,6 +8,10 @@ function Organizations() {
     const [organizations, setOrganizations] = useState([])
     const [error, setError] = useState("")
 
+    const [selectedOrg, setSelectedOrg] = useState(null)
+    const [orgEvents, setOrgEvents] = useState([])
+    const [eventsError, setEventsError] = useState("")
+
     useEffect(() => {
 
         let cancelled = false
@@ -30,6 +34,24 @@ function Organizations() {
             cancelled = true
         }
     }, [])
+
+    async function viewEvents(organization) {
+        setSelectedOrg(organization)
+        setOrgEvents([])
+        setEventsError("")
+
+        try {
+            const allEvents = await api.get("/events/events")
+            setOrgEvents(allEvents.filter((event) => event.organizationId === organization.id))
+        } catch (requestError) {
+            console.error(requestError)
+            setEventsError("Could not load this organization's events.")
+        }
+    }
+
+    function closePopup() {
+        setSelectedOrg(null)
+    }
 
     return (
         <div className="home-page">
@@ -76,6 +98,15 @@ function Organizations() {
                                 </p>
                             )}
 
+                            <div className="card-buttons">
+                                <button
+                                    onClick={() => viewEvents(organization)}
+                                    className="primary-button"
+                                >
+                                    View Events
+                                </button>
+                            </div>
+
                         </div>
 
                     ))}
@@ -83,6 +114,37 @@ function Organizations() {
                 </div>
 
             </section>
+
+            {selectedOrg && (
+                <div className="popup">
+                    <div className="popup-content">
+
+                        <p>
+                            <strong>Organization:</strong>{" "}
+                            {selectedOrg.name}
+                        </p>
+
+                        {eventsError && <p className="error">{eventsError}</p>}
+
+                        {!eventsError && orgEvents.length === 0 && (
+                            <p>No events yet.</p>
+                        )}
+
+                        {orgEvents.map((event) => (
+                            <p key={event.id}>
+                                <strong>{event.title}</strong>{" "}
+                                &mdash; {event.location},{" "}
+                                {new Date(event.startTime).toLocaleString()}
+                            </p>
+                        ))}
+
+                        <button onClick={closePopup} className="primary-button">
+                            Close
+                        </button>
+
+                    </div>
+                </div>
+            )}
 
         </div>
     )
