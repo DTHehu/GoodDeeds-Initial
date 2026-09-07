@@ -10,7 +10,7 @@ function VolDashboard() {
     const [error, setError] = useState("")
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [registerError, setRegisterError] = useState("")
-    const [registering, setRegistering] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
     const [registered, setRegistered] = useState(false)
 
     useEffect(() => {
@@ -45,10 +45,16 @@ function VolDashboard() {
             (event.location || "").toLowerCase().includes(term)
     })
 
-    function openPopup(event) {
+    async function openPopup(event) {
         setSelectedEvent(event)
         setRegisterError("")
         setRegistered(false)
+
+        try {
+            setRegistered(await api.get(`/events/${event.id}/registration`))
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     function closePopup() {
@@ -56,7 +62,7 @@ function VolDashboard() {
     }
 
     async function registerForEvent() {
-        setRegistering(true)
+        setSubmitting(true)
         setRegisterError("")
 
         try {
@@ -67,7 +73,22 @@ function VolDashboard() {
             setRegisterError(err.message || "Could not register for this event.")
         }
 
-        setRegistering(false)
+        setSubmitting(false)
+    }
+
+    async function unregisterForEvent() {
+        setSubmitting(true)
+        setRegisterError("")
+
+        try {
+            await api.del(`/events/${selectedEvent.id}/register`)
+            setRegistered(false)
+        } catch (err) {
+            console.error(err)
+            setRegisterError(err.message || "Could not unregister from this event.")
+        }
+
+        setSubmitting(false)
     }
 
     return (
@@ -184,15 +205,22 @@ function VolDashboard() {
                         </p>
 
                         {registerError && <p className="error">{registerError}</p>}
-                        {registered && <p className="success">You're registered for this event.</p>}
 
-                        {!registered && (
+                        {registered ? (
+                            <button
+                                className="primary-button"
+                                onClick={unregisterForEvent}
+                                disabled={submitting}
+                            >
+                                {submitting ? "Unregistering..." : "Unregister"}
+                            </button>
+                        ) : (
                             <button
                                 className="primary-button"
                                 onClick={registerForEvent}
-                                disabled={registering}
+                                disabled={submitting}
                             >
-                                {registering ? "Registering..." : "Register for Event"}
+                                {submitting ? "Registering..." : "Register for Event"}
                             </button>
                         )} {" "}
 

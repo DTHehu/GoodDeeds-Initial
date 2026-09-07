@@ -135,6 +135,28 @@ public class EventService
         return true;
     }
 
+    public async Task<bool> IsRegistered(Guid userId, Guid eventId)
+    {
+        return await _db.EventRegistrations.AnyAsync(r => r.EventId == eventId && r.UserId == userId);
+    }
+
+    /// <summary>False means the user was not registered for that event.</summary>
+    public async Task<bool> UnregisterForEvent(Guid userId, Guid eventId)
+    {
+        var registration = await _db.EventRegistrations
+            .FirstOrDefaultAsync(r => r.EventId == eventId && r.UserId == userId);
+
+        if (registration == null)
+        {
+            return false;
+        }
+
+        _db.EventRegistrations.Remove(registration);
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
+
     /// <summary>Returns null if the event does not exist, or the caller's organization does not own it.</summary>
     public async Task<List<EventRegistrationDto>?> GetEventRegistrations(Guid eventId, Guid callerId)
     {

@@ -82,6 +82,30 @@ public class EventsController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{id}/registration")]
+    public async Task<IActionResult> GetRegistrationStatus(Guid id)
+    {
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await _events.IsRegistered(CurrentUserId.Value, id));
+    }
+
+    [HttpDelete("{id}/register")]
+    public async Task<IActionResult> UnregisterEvent(Guid id)
+    {
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        var unregistered = await _events.UnregisterForEvent(CurrentUserId.Value, id);
+
+        return unregistered ? Ok() : NotFound();
+    }
+
     /// <summary>Organizers only: the attendee list for one of their own events.</summary>
     [HttpGet("{id}/registrations")]
     public async Task<IActionResult> GetEventRegistrations(Guid id)
