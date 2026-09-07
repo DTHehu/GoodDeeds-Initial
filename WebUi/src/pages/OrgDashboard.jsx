@@ -59,8 +59,7 @@ function OrgDashboard() {
             title: eventName,
             description: description,
             location: location,
-            // datetime-local has no timezone. Reading it through Date treats it
-            // as the browser's local time, and toISOString converts to UTC.
+            // datetime-local has no timezone, so Date treats it as local time; toISOString converts to UTC.
             startTime: new Date(startTime).toISOString(),
             endTime: new Date(endTime).toISOString()
         }
@@ -80,8 +79,7 @@ function OrgDashboard() {
         setEndTime("")
         setShowForm(false)
 
-        // The event was already created above; a failure here only means the
-        // list on screen is stale, not that creation failed.
+        // Event is already created; a failure here just means the list is stale.
         try {
             setEvents(await loadEvents())
         } catch (error) {

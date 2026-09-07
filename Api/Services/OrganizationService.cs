@@ -17,14 +17,7 @@ public class OrganizationService
         _userManager = userManager;
     }
 
-    /// <summary>
-    /// Creates an organization together with its first user account. Both are
-    /// written in one transaction, so a failure part way through leaves neither
-    /// behind.
-    ///
-    /// False means the contact email was taken, the login email was taken, or
-    /// the password was rejected.
-    /// </summary>
+    /// <summary>False means the contact email was taken, the login email was taken, or the password was rejected.</summary>
     public async Task<bool> RegisterAsync(OrganizationRegisterRequest request)
     {
         var contactEmail = request.ContactEmail.Trim().ToLower();

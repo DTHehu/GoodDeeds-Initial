@@ -99,9 +99,16 @@ public class EventService
         };
     }
 
-    /// <summary>False means the event does not exist, or the user is already registered for it.</summary>
+    /// <summary>False means the event doesn't exist, the caller is an organization, or they're already registered.</summary>
     public async Task<bool> RegisterForEvent(Guid userId, EventRegistrationRequest request)
     {
+        var caller = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (caller?.OrganizationId != null)
+        {
+            return false;
+        }
+
         if (!await _db.Events.AnyAsync(e => e.Id == request.EventId))
         {
             return false;

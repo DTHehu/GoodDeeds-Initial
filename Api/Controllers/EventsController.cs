@@ -76,7 +76,7 @@ public class EventsController : ControllerBase
 
         if (!isRegistered)
         {
-            return BadRequest("That event does not exist, or you are already registered for it.");
+            return BadRequest("That event does not exist, organizations cannot register, or you are already registered for it.");
         }
 
         return Ok();

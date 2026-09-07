@@ -6,12 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoodDeedsApi.Controllers;
 
-/// <summary>
-/// Account creation lives in Identity at POST /api/auth/register.
-///
-/// The class-level policy must be the loosest rule any action needs: [Authorize]
-/// attributes combine with AND, so an action cannot widen what the class sets.
-/// </summary>
+// Account creation lives in Identity at POST /api/auth/register.
 [ApiController]
 [Route("api/users")]
 [Authorize(Policy = Policies.AuthenticatedUser)]
@@ -24,10 +19,6 @@ public class UsersController : ControllerBase
         _users = users;
     }
 
-    /// <summary>
-    /// Read from the token, so it cannot be forged. Prefer this over any user id
-    /// taken from a request body.
-    /// </summary>
     private Guid? CurrentUserId =>
         Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : null;
 
