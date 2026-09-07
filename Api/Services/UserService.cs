@@ -53,7 +53,15 @@ public class UserService
             }
         }
         
-        var userDto = new UserDto(user.Id, user.Name, user.Email, user.PhoneNumber, user.CreatedAt, organizationDto);
+        var userDto = new UserDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            CreatedAt = user.CreatedAt,
+            Organization = organizationDto
+        };
         
         await _cache.SetAsync(cacheKey, userDto);
 
@@ -84,7 +92,14 @@ public class UserService
             return null;
         }
         
-        return new UserDto(user.Id, user.Name, user.Email, user.PhoneNumber, user.CreatedAt, null);
+        return new UserDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            CreatedAt = user.CreatedAt
+        };
     }
 
     /// <summary>Returns false if there was no user with that id.</summary>

@@ -3,13 +3,15 @@ using System.ComponentModel.DataAnnotations;
 namespace GoodDeedsApi.Models.Dtos;
 
 /// <summary>Kept separate from AppUser so the password hash cannot be serialized.</summary>
-public record UserDto(
-    Guid Id,
-    string Name,
-    string Email,
-    string? PhoneNumber,
-    DateTimeOffset CreatedAt,
-    OrganizationDto? Organization);
+public class UserDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public OrganizationDto? Organization { get; set; }
+}
 
 public class OrganizationDto
 {
@@ -21,11 +23,13 @@ public class OrganizationDto
     public string? Description { get; set; }
 }
 
-public record UpdateUserRequest(
+public class UpdateUserRequest
+{
     [Required]
     [StringLength(200)]
-    string Name,
+    public string Name { get; set; } = null!;
 
     [Phone]
     [StringLength(32)]
-    string? PhoneNumber);
+    public string? PhoneNumber { get; set; }
+}

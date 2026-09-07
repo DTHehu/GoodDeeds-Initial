@@ -2,22 +2,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GoodDeedsApi.Models.Dtos;
 
-public record RegisterRequest(
+public class RegisterRequest
+{
     [Required]
     [EmailAddress]
-    string Email,
+    public string Email { get; set; } = null!;
 
     [Required]
-    string Password,
+    public string Password { get; set; } = null!;
 
     /// <summary>Display name shown on the volunteer's profile.</summary>
     [Required]
     [StringLength(200)]
-    string Name);
+    public string Name { get; set; } = null!;
+}
 
-public record LoginRequest(string Email, string Password);
+public class LoginRequest
+{
+    public string Email { get; set; } = null!;
+    public string Password { get; set; } = null!;
+}
 
-public record RefreshRequest(string RefreshToken);
+public class RefreshRequest
+{
+    public string RefreshToken { get; set; } = null!;
+}
 
 public class OrganizationRegisterRequest
 {
