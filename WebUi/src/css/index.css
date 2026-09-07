@@ -275,8 +275,12 @@ a.primary-button {
     @apply mx-auto mt-[25px] w-fit px-[25px];
 }
 
-.info-card .primary-button {
-    @apply mt-[20px];
+.card-buttons {
+    @apply mt-[20px] flex flex-col gap-[8px];
+}
+
+.card-buttons .primary-button {
+    @apply mt-0;
 }
 
 /* Pop ups for events*/

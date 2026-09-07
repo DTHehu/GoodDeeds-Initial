@@ -99,6 +99,55 @@ public class EventService
         };
     }
 
+    /// <summary>Returns null if the event does not exist, or the caller's organization does not own it.</summary>
+    public async Task<EventDto?> UpdateEvent(Guid eventId, EventDto eventDto, Guid userId)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var eventEntity = await _db.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+
+        if (eventEntity == null || user?.OrganizationId != eventEntity.OrganizationId)
+        {
+            return null;
+        }
+
+        eventEntity.Title = eventDto.Title;
+        eventEntity.Description = eventDto.Description;
+        eventEntity.Location = eventDto.Location;
+        eventEntity.StartTime = eventDto.StartTime.ToUniversalTime();
+        eventEntity.EndTime = eventDto.EndTime.ToUniversalTime();
+
+        await _db.SaveChangesAsync();
+
+        return new EventDto()
+        {
+            Id = eventEntity.Id,
+            CreatedAt = eventEntity.CreatedAt,
+            Description = eventEntity.Description,
+            EndTime = eventEntity.EndTime,
+            Location = eventEntity.Location,
+            OrganizationId = eventEntity.OrganizationId,
+            StartTime = eventEntity.StartTime,
+            Title = eventEntity.Title
+        };
+    }
+
+    /// <summary>False means the event does not exist, or the caller's organization does not own it.</summary>
+    public async Task<bool> DeleteEvent(Guid eventId, Guid userId)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var eventEntity = await _db.Events.FirstOrDefaultAsync(e => e.Id == eventId);
+
+        if (eventEntity == null || user?.OrganizationId != eventEntity.OrganizationId)
+        {
+            return false;
+        }
+
+        _db.Events.Remove(eventEntity);
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
+
     /// <summary>False means the event doesn't exist, the caller is an organization, or they're already registered.</summary>
     public async Task<bool> RegisterForEvent(Guid userId, EventRegistrationRequest request)
     {

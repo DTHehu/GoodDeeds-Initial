@@ -64,6 +64,37 @@ public class EventsController : ControllerBase
         return Ok(createdEvent);
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEvent(Guid id, [FromBody] EventDto eventDto)
+    {
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        if (eventDto.EndTime <= eventDto.StartTime)
+        {
+            return BadRequest("End time must be after start time.");
+        }
+
+        var updatedEvent = await _events.UpdateEvent(id, eventDto, CurrentUserId.Value);
+
+        return updatedEvent == null ? NotFound() : Ok(updatedEvent);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEvent(Guid id)
+    {
+        if (CurrentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        var deleted = await _events.DeleteEvent(id, CurrentUserId.Value);
+
+        return deleted ? Ok() : NotFound();
+    }
+
     [HttpPost("register")]
     public async Task<IActionResult> RegisterEvent([FromBody] EventRegistrationRequest eventRegistrationRequest)
     {

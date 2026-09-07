@@ -6,6 +6,7 @@ import "../css/index.css"
 function OrgDashboard() {
 
     const [showForm, setShowForm] = useState(false)
+    const [editingEventId, setEditingEventId] = useState(null)
     const [eventName, setEventName] = useState("")
     const [description, setDescription] = useState("")
     const [location, setLocation] = useState("")
@@ -15,6 +16,7 @@ function OrgDashboard() {
     const [endClock, setEndClock] = useState("")
     const [events, setEvents] = useState([])
     const [error, setError] = useState("")
+    const [formError, setFormError] = useState("")
 
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [registrations, setRegistrations] = useState([])
@@ -54,26 +56,7 @@ function OrgDashboard() {
         }
     }, [])
 
-    async function addEvent(e) {
-        e.preventDefault()
-
-        const newEvent = {
-            title: eventName,
-            description: description,
-            location: location,
-            // No timezone in date/time inputs, so Date treats the combined string as local time; toISOString converts it to UTC.
-            startTime: new Date(`${startDate}T${startClock}`).toISOString(),
-            endTime: new Date(`${endDate}T${endClock}`).toISOString()
-        }
-
-        try {
-            await api.post('/events', newEvent)
-        } catch (error) {
-            console.error(error)
-            alert("There was a problem creating the event.")
-            return
-        }
-
+    function resetForm() {
         setEventName("")
         setDescription("")
         setLocation("")
@@ -81,14 +64,103 @@ function OrgDashboard() {
         setStartClock("")
         setEndDate("")
         setEndClock("")
-        setShowForm(false)
+    }
 
-        // Event is already created; a failure here just means the list is stale.
+    function splitDateTime(isoString) {
+        const dateTime = new Date(isoString)
+        const pad = (n) => String(n).padStart(2, "0")
+
+        const date = `${dateTime.getFullYear()}-${pad(dateTime.getMonth() + 1)}-${pad(dateTime.getDate())}`
+        const clock = `${pad(dateTime.getHours())}:${pad(dateTime.getMinutes())}`
+
+        return [date, clock]
+    }
+
+    function startCreate() {
+        resetForm()
+        setEditingEventId(null)
+        setFormError("")
+        setShowForm(true)
+    }
+
+    function startEdit(event) {
+        const [eventStartDate, eventStartClock] = splitDateTime(event.startTime)
+        const [eventEndDate, eventEndClock] = splitDateTime(event.endTime)
+
+        setEventName(event.title)
+        setDescription(event.description)
+        setLocation(event.location)
+        setStartDate(eventStartDate)
+        setStartClock(eventStartClock)
+        setEndDate(eventEndDate)
+        setEndClock(eventEndClock)
+        setEditingEventId(event.id)
+        setFormError("")
+        setShowForm(true)
+    }
+
+    function cancelForm() {
+        resetForm()
+        setEditingEventId(null)
+        setShowForm(false)
+    }
+
+    async function saveEvent(e) {
+        e.preventDefault()
+        setFormError("")
+
+        const startTime = new Date(`${startDate}T${startClock}`)
+        const endTime = new Date(`${endDate}T${endClock}`)
+
+        if (endTime <= startTime) {
+            setFormError("End time must be after start time.")
+            return
+        }
+
+        const eventPayload = {
+            title: eventName,
+            description: description,
+            location: location,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString()
+        }
+
+        const wasEditing = editingEventId != null
+
+        try {
+            if (wasEditing) {
+                await api.put(`/events/${editingEventId}`, eventPayload)
+            } else {
+                await api.post('/events', eventPayload)
+            }
+        } catch (error) {
+            console.error(error)
+            alert(wasEditing ? "There was a problem updating the event." : "There was a problem creating the event.")
+            return
+        }
+
+        cancelForm()
+
+        // Event is already saved; a failure here just means the list is stale.
         try {
             setEvents(await loadEvents())
         } catch (error) {
             console.error(error)
-            setError("Event created, but the list could not be refreshed. Reload the page to see it.")
+            setError(`Event ${wasEditing ? "updated" : "created"}, but the list could not be refreshed. Reload the page to see it.`)
+        }
+    }
+
+    async function deleteEvent(event) {
+        if (!window.confirm(`Cancel "${event.title}"? This cannot be undone.`)) {
+            return
+        }
+
+        try {
+            await api.del(`/events/${event.id}`)
+            setEvents(await loadEvents())
+        } catch (error) {
+            console.error(error)
+            setError("Could not cancel the event.")
         }
     }
 
@@ -123,13 +195,13 @@ function OrgDashboard() {
 
                     <button
                         className="primary-button"
-                        onClick={() => setShowForm(!showForm)}
+                        onClick={showForm ? cancelForm : startCreate}
                     >
                         {showForm ? "Cancel" : "Add Event"}
                     </button>
 
                     {showForm && (
-                        <form className="event-form" onSubmit={addEvent}>
+                        <form className="event-form" onSubmit={saveEvent}>
 
                             <div className="form-group">
                                 <label>Event Name</label>
@@ -196,8 +268,10 @@ function OrgDashboard() {
                                 </div>
                             </div>
 
+                            {formError && <p className="error">{formError}</p>}
+
                             <button type="submit" className="primary-button">
-                                Create Event
+                                {editingEventId ? "Save Changes" : "Create Event"}
                             </button>
 
                         </form>
@@ -256,6 +330,18 @@ function OrgDashboard() {
                                           className="primary-button"
                                       >
                                           View Volunteers
+                                      </button>
+                                      <button
+                                          onClick={() => startEdit(event)}
+                                          className="primary-button"
+                                      >
+                                          Edit
+                                      </button>
+                                      <button
+                                          onClick={() => deleteEvent(event)}
+                                          className="primary-button"
+                                      >
+                                          Cancel Event
                                       </button>
                                   </div>
 
