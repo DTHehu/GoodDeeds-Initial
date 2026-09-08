@@ -7,10 +7,20 @@
 # API:      http://localhost:5160/swagger
 name: gooddeeds-demo
 
+# Every service below joins this same network, which is what lets them reach
+# each other by service name (e.g. "postgres", "redis") instead of localhost.
+# Only ports published under a service's own "ports:" are reachable from
+# outside this network, i.e. from your actual machine.
+networks:
+  gooddeeds-network:
+    name: gooddeeds-network
+
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
+    networks:
+      - gooddeeds-network
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     environment:
@@ -29,6 +39,8 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    networks:
+      - gooddeeds-network
     ports:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     command: ["redis-server", "--requirepass", "devpassword", "--appendonly", "yes"]
@@ -44,11 +56,17 @@ services:
     build:
       context: ../Api
     restart: unless-stopped
+    networks:
+      - gooddeeds-network
     ports:
       - "5160:8080"
     environment:
       # Development turns on CORS and Swagger, both gated behind it in Program.cs.
       ASPNETCORE_ENVIRONMENT: Development
+      # "postgres" and "redis" below are the service names above, resolved
+      # over gooddeeds-network. Compare to appsettings.Development.json,
+      # which says Host=localhost - that's correct there and wrong here,
+      # because there is no "localhost" shared between separate containers.
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=appdb;Username=appuser;Password=devpassword"
       ConnectionStrings__Redis: "redis:6379,password=devpassword"
     depends_on:
@@ -61,6 +79,8 @@ services:
     build:
       context: ../WebUi
     restart: unless-stopped
+    networks:
+      - gooddeeds-network
     ports:
       - "5173:80"
     depends_on:
