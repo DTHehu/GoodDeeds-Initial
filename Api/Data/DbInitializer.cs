@@ -36,7 +36,6 @@ public static class DbInitializer
         await db.Database.MigrateAsync();
 
         await SeedRolesAsync(services, logger);
-        await SeedAdminAsync(services, app.Configuration, app.Environment, logger);
     }
 
     private static async Task WaitForDatabaseAsync(AppDbContext db, ILogger logger)
@@ -71,48 +70,6 @@ public static class DbInitializer
             else
                 logger.LogError("Could not seed role {Role}: {Errors}", role, Describe(result));
         }
-    }
-
-    private static async Task SeedAdminAsync(
-        IServiceProvider services,
-        IConfiguration configuration,
-        IHostEnvironment environment,
-        ILogger logger)
-    {
-        // Development only, so a well-known password cannot reach a server.
-        if (!environment.IsDevelopment()) return;
-
-        var email = configuration["SeedAdmin:Email"];
-        var password = configuration["SeedAdmin:Password"];
-
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-        {
-            logger.LogInformation("SeedAdmin:Email / SeedAdmin:Password not configured. Skipping admin seed.");
-            return;
-        }
-
-        var userManager = services.GetRequiredService<UserManager<AppUser>>();
-
-        if (await userManager.FindByEmailAsync(email) is not null) return;
-
-        var admin = new AppUser
-        {
-            UserName = email,
-            Email = email,
-            Name = "Local Admin",
-            EmailConfirmed = true,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
-
-        var created = await userManager.CreateAsync(admin, password);
-        if (!created.Succeeded)
-        {
-            logger.LogError("Could not seed admin user: {Errors}", Describe(created));
-            return;
-        }
-
-        await userManager.AddToRoleAsync(admin, Roles.Admin);
-        logger.LogWarning("Seeded DEVELOPMENT admin account {Email}. Local use only.", email);
     }
 
     private static string Describe(IdentityResult result) =>

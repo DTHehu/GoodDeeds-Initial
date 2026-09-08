@@ -11,8 +11,7 @@ public class AppRole : IdentityRole<Guid>
 
 public static class Roles
 {
-    public const string Admin = "Admin";
     public const string Member = "Member";
 
-    public static readonly string[] All = [Admin, Member];
+    public static readonly string[] All = [Member];
 }

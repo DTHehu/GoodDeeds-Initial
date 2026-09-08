@@ -63,7 +63,6 @@ public class Program
             });
 
         builder.Services.AddAuthorizationBuilder()
-            .AddPolicy(Policies.AdminOnly, policy => policy.RequireRole(Roles.Admin))
             .AddPolicy(Policies.AuthenticatedUser, policy => policy.RequireAuthenticatedUser());
 
         // Add new services here.
@@ -155,6 +154,5 @@ public class Program
 
 public static class Policies
 {
-    public const string AdminOnly = "AdminOnly";
     public const string AuthenticatedUser = "AuthenticatedUser";
 }
