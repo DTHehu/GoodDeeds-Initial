@@ -40,18 +40,6 @@ services:
       timeout: 5s
       retries: 10
 
-  # Optional web UI for poking at the database.
-  # Off by default. Start it with:  docker compose -f docker-compose.dev.yml --profile tools up -d
-  adminer:
-    image: adminer:latest
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:8081:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    profiles: [tools]
-
 volumes:
   pgdata:
   redisdata:
