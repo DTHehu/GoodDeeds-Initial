@@ -5,13 +5,14 @@ GoodDeeds – Initial Project Challenge You have been hired by a new software co
 ## Development
 To start up the whole program in development mode so you may make live changes and debug the program, do as follows:
 - Start Docker
+- Navigate to ../(project_file)/Docker
 - Run `docker compose -f docker-compose.dev.yml up -d` in the `Docker` folder. This initializes and runs both databases.
 - Open an IDE to debug .NET solutions.
 - Open API solution.
 - Run API in HTTP mode.
 - Open Webapp in whatever editor you choose.
 - Ensure `Node` and `npm` are installed on your machine.
-- Run `npm run dev` in terminal withen the `WebUi` folder to start up the webui in dev mode.
+- Run `npm install` then `npm run dev` in terminal within the `WebUi` folder to start the Vite dev server.
 
 Now you are set to debug and run the application.
 
