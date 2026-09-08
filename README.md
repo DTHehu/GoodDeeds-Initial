@@ -14,3 +14,10 @@ To start up the whole program in development mode so you may make live changes a
 - Run `npm run dev` in terminal withen the `WebUi` folder to start up the webui in dev mode.
 
 Now you are set to debug and run the application.
+
+## Production/Presentation
+To start the program with the purpose of presenting the application:
+- Start Docker
+- Run `docker compose -f Docker/PresentationCompose.yaml up --build` withen the `Docker` folder. This will initialize and run both databases, as well as start up the api and webapp and expose them on ports 5160 and 5173.
+
+Now the program is fully up and running. If first time running, give db time to get initialized by API.
