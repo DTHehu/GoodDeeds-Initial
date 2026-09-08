@@ -33,7 +33,7 @@ Now the program is fully up and running. If first time running, give db time to 
 ## Database
 - Postgres: SQL database for long lived information.
 - Redis: In Memory Data Cache for short lived information accessed quickly.
-### Entity Framework Withen Database
+### Entity Framework Within Database
 Entity framework is used to initialize the whole database from C# classes. In the API there is a folder called `Data`. In that folder, there is a class called `AppDbContext.cs` this file contains the classes that will be initialized in the DB and the relations of those classes.
 
 Entity framework, on first boot, will run `migrations` on the database to initialize the tables. From then on, when interacting with the db to pull information, you can use Entity Framework to treat the DB as a standard Object and run methods on it to return `Entities`. Check the Service layer for this implimentation.
