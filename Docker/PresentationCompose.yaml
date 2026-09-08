@@ -18,8 +18,7 @@ services:
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: devpassword
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./db/demo/pgdata:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -28,7 +27,7 @@ services:
       - gooddeeds-network
     command: ["redis-server", "--requirepass", "devpassword", "--appendonly", "yes"]
     volumes:
-      - redisdata:/data
+      - ./db/demo/redisdata:/data
 
   api:
     build:
@@ -56,7 +55,3 @@ services:
       - "5173:80"
     depends_on:
       - api
-
-volumes:
-  pgdata:
-  redisdata:

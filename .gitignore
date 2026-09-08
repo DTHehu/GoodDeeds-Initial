@@ -26,3 +26,7 @@ dist-ssr/
 # ---- OS ----
 .DS_Store
 Thumbs.db
+
+# ---- Docker Postgres/Redis data (bind-mounted so it's browsable on disk) ----
+Docker/db/dev/
+Docker/db/demo/

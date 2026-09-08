@@ -17,9 +17,7 @@ services:
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: devpassword
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      # *.sql here runs once, on first creation of an empty pgdata volume
-      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./db/dev/pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
       interval: 5s
@@ -33,13 +31,9 @@ services:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     command: ["redis-server", "--requirepass", "devpassword", "--appendonly", "yes"]
     volumes:
-      - redisdata:/data
+      - ./db/dev/redisdata:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli -a devpassword ping | grep -q PONG"]
       interval: 5s
       timeout: 5s
       retries: 10
-
-volumes:
-  pgdata:
-  redisdata:
