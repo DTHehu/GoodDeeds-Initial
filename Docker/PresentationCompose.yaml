@@ -20,11 +20,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -34,11 +29,6 @@ services:
     command: ["redis-server", "--requirepass", "devpassword", "--appendonly", "yes"]
     volumes:
       - redisdata:/data
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a devpassword ping | grep -q PONG"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
 
   api:
     build:
@@ -53,10 +43,8 @@ services:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=appdb;Username=appuser;Password=devpassword"
       ConnectionStrings__Redis: "redis:6379,password=devpassword"
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - postgres
+      - redis
 
   frontend:
     build:
