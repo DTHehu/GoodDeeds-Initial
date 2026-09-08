@@ -10,7 +10,7 @@ RUN npm ci
 COPY . .
 
 # Compile the Vite application
-RUN npm run build 
+RUN npm run build
 
 # Stage 2: Production Environment
 FROM nginx:alpine
@@ -19,7 +19,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Extract from Vite's 'dist' directory
-# COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Inject custom routing configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf

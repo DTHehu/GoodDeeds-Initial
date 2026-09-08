@@ -1,0 +1,71 @@
+# One-command stack for demos: builds and runs the frontend, API, and
+# databases together on a single machine.
+#
+#   docker compose -f Docker/PresentationCompose.yaml up --build
+#
+# Frontend: http://localhost:5173 (port chosen to match the API's CORS allow-list)
+# API:      http://localhost:5160/swagger
+name: gooddeeds-demo
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: devpassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    command: ["redis-server", "--requirepass", "devpassword", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a devpassword ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ../Api
+    restart: unless-stopped
+    ports:
+      - "5160:8080"
+    environment:
+      # Development turns on CORS and Swagger, both gated behind it in Program.cs.
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=appdb;Username=appuser;Password=devpassword"
+      ConnectionStrings__Redis: "redis:6379,password=devpassword"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../WebUi
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  redisdata:
