@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
 import { api } from '../services/api'
+import { formatDate, formatEventWhen, isUpcoming } from '../services/format'
 import Navbar from '../components/Navbar.jsx'
+import Modal from '../components/Modal.jsx'
+import EmptyState from '../components/EmptyState.jsx'
+import {
+    AlertIcon,
+    BuildingIcon,
+    CalendarIcon,
+    CheckCircleIcon,
+    ClockIcon,
+    MapPinIcon,
+    SearchIcon,
+} from '../components/Icons.jsx'
 import "../css/index.css"
 
 function VolDashboard() {
@@ -9,6 +21,7 @@ function VolDashboard() {
     const [registeredEvents, setRegisteredEvents] = useState([])
     const [search, setSearch] = useState("")
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(true)
     const [selectedEvent, setSelectedEvent] = useState(null)
     const [registerError, setRegisterError] = useState("")
     const [submitting, setSubmitting] = useState(false)
@@ -29,12 +42,14 @@ function VolDashboard() {
                 setEvents(allEvents)
                 setRegisteredEvents(myEvents)
                 setError("")
+                setLoading(false)
             })
             .catch((requestError) => {
                 if (cancelled) return
 
                 console.error(requestError)
                 setError("Could not load events. You may need to log in again.")
+                setLoading(false)
             })
 
         return () => {
@@ -45,6 +60,8 @@ function VolDashboard() {
     function loadRegisteredEvents() {
         api.get("/events/registered").then(setRegisteredEvents).catch(console.error)
     }
+
+    const registeredIds = new Set(registeredEvents.map((event) => event.id))
 
     const filteredEvents = events.filter((event) => {
 
@@ -111,180 +128,278 @@ function VolDashboard() {
     }
 
     return (
-        <div className="home-page">
+        <div className="page">
 
             <Navbar />
 
-            <div className="dashboard">
+            <header className="page-head">
+                <div className="page-head-inner">
 
-                {/* Sidebar */}
-                <aside className="sidebar">
-
-                    <h3>Your commitments</h3>
-
-                    {registeredEvents.length === 0 ? (
-                            <p>Your registered opportunities will appear here.</p>
-                    ) : (
-                        <div className="sidebar-list">
-                            {registeredEvents.map((event) => (
-                                <div
-                                    key={event.id}
-                                    className="sidebar-list-item"
-                                    onClick={() => openPopup(event)}
-                                >
-                                    <strong>{event.title}</strong>
-                                    <span>{new Date(event.startTime).toLocaleDateString()}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                </aside>
-
-
-                {/* Dashboard Content */}
-                <main className="dashboard-content">
-
-                    {/* About Section */}
-                    <section className="about dashboard-hero">
-
-                        <p className="eyebrow">Your volunteer hub</p>
-
-                        <h2>Make time for what matters.</h2>
-
-                        <p>
-                            Browse open opportunities, learn about the people behind them, and choose where your help can go furthest.
+                    <div>
+                        <p className="page-eyebrow">Volunteer</p>
+                        <h1 className="page-title">Your dashboard</h1>
+                        <p className="page-sub">
+                            Find opportunities near you and keep track of everything
+                            you have signed up for.
                         </p>
+                    </div>
 
-                    </section>
+                    <div className="stat-row">
+                        <div className="stat">
+                            <span className="stat-value">{events.length}</span>
+                            <span className="stat-label">Opportunities</span>
+                        </div>
 
+                        <div className="stat">
+                            <span className="stat-value">{registeredEvents.length}</span>
+                            <span className="stat-label">Registered</span>
+                        </div>
+                    </div>
 
-                    {/* Search */}
-                    <section className="search-section">
+                </div>
+            </header>
 
-                        <h2>Find your next opportunity</h2>
+            <main className="page-body">
+                <div className="dash">
 
-                        <input
-                            type="text"
-                            placeholder="Search by cause, place, or event name"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
+                    {/* Sidebar */}
+                    <aside className="dash-side">
+                        <div className="panel">
 
-                    </section>
+                            <div className="panel-head">
+                                <h2 className="panel-title">My events</h2>
+                                <span className="badge badge-brand">{registeredEvents.length}</span>
+                            </div>
 
+                            {registeredEvents.length === 0 ? (
+                                <p className="text-sm leading-relaxed text-slate-500">
+                                    You haven't registered for any events yet. Pick one from the
+                                    list to get started.
+                                </p>
+                            ) : (
+                                <div className="panel-scroll">
+                                    {registeredEvents.map((event) => (
+                                        <button
+                                            type="button"
+                                            key={event.id}
+                                            className="list-item"
+                                            onClick={() => openPopup(event)}
+                                        >
+                                            <span className="list-item-title">{event.title}</span>
+                                            <span className="list-item-sub">
+                                                <CalendarIcon />
+                                                {formatDate(event.startTime)}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
 
-                    {/* Events */}
-                    <section className="info-container">
+                        </div>
+                    </aside>
 
-                        <h2>Open opportunities</h2>
+                    {/* Opportunities */}
+                    <div className="dash-main">
 
-                        {error && <p className="error">{error}</p>}
+                        <div className="section-head">
+                            <div className="search">
+                                <SearchIcon />
+                                <input
+                                    className="input"
+                                    type="text"
+                                    placeholder="Search by title, description or place..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
 
-                        <div className="info-cards">
+                            <p className="text-sm text-slate-500">
+                                {filteredEvents.length} {filteredEvents.length === 1 ? 'opportunity' : 'opportunities'}
+                            </p>
+                        </div>
+
+                        {error && (
+                            <p className="alert alert-error mb-6">
+                                <AlertIcon />
+                                {error}
+                            </p>
+                        )}
+
+                        {loading && (
+                            <div className="card-grid">
+                                {[0, 1, 2, 3].map((key) => (
+                                    <div className="skeleton-card" key={key}>
+                                        <div className="skeleton h-4 w-2/3" />
+                                        <div className="skeleton mt-4 h-3 w-full" />
+                                        <div className="skeleton mt-2 h-3 w-5/6" />
+                                        <div className="skeleton mt-6 h-9 w-full" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {!loading && !error && filteredEvents.length === 0 && (
+                            <EmptyState
+                                icon={<CalendarIcon />}
+                                title={search ? "No events matched" : "No opportunities yet"}
+                                text={search
+                                    ? `Nothing matched "${search}". Try a broader search.`
+                                    : "Check back soon, organizations post new events regularly."}
+                            />
+                        )}
+
+                        <div className="card-grid">
 
                             {filteredEvents.map((event) => (
 
-                                <div className="info-card" key={event.id}>
+                                <article className="card" key={event.id}>
 
-                                    <h3>{event.title}</h3>
+                                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                                        {isUpcoming(event.startTime) ? (
+                                            <span className="badge badge-brand">Upcoming</span>
+                                        ) : (
+                                            <span className="badge badge-muted">Past</span>
+                                        )}
 
-                                    <p>
-                                        <strong>Location:</strong>{" "}
-                                        {event.location}
-                                    </p>
+                                        {registeredIds.has(event.id) && (
+                                            <span className="badge badge-amber">
+                                                <CheckCircleIcon />
+                                                Registered
+                                            </span>
+                                        )}
+                                    </div>
 
-                                    <p>
-                                      <strong>Start:</strong>{" "}
-                                      {new Date(event.startTime).toLocaleString()}
-                                    </p>
+                                    <h2 className="card-title">{event.title}</h2>
 
-                                    <p>
-                                      <strong>End:</strong>{" "}
-                                      {new Date(event.endTime).toLocaleString()}
-                                    </p>
+                                    {event.description && (
+                                        <p className="card-text line-clamp-3">{event.description}</p>
+                                    )}
 
-                                    <div className="card-buttons">
+                                    <div className="card-meta">
+
+                                        <p className="meta-row">
+                                            <MapPinIcon />
+                                            <span>{event.location}</span>
+                                        </p>
+
+                                        <p className="meta-row">
+                                            <ClockIcon />
+                                            <span>{formatEventWhen(event.startTime, event.endTime)}</span>
+                                        </p>
+
+                                    </div>
+
+                                    <div className="card-actions mt-auto">
                                         <button
                                             onClick={() => openPopup(event)}
-                                            className="primary-button"
+                                            className="btn btn-primary"
                                         >
-                                            More Information
+                                            More information
                                         </button>
                                     </div>
 
-                                </div>
+                                </article>
 
                             ))}
 
                         </div>
 
-                    </section>
+                    </div>
 
-                </main>
-
-            </div>
+                </div>
+            </main>
 
             {selectedEvent && (
-                <div className="popup">
-                    <div className="popup-content">
-
-                        <p>
-                            <strong>Organization:</strong>{" "}
-                            {organizationName}
-                        </p>
-
-                        <p>
-                            <strong>Title:</strong>{" "}
-                            {selectedEvent.title}
-                        </p>
-
-                        <p>
-                            <strong>Description:</strong>{" "}
-                            {selectedEvent.description}
-                        </p>
-
-                        <p>
-                            <strong>Location:</strong>{" "}
-                            {selectedEvent.location}
-                        </p>
-
-                        <p>
-                            <strong>Start:</strong>{" "}
-                            {new Date(selectedEvent.startTime).toLocaleString()}
-                        </p>
-
-                        <p>
-                            <strong>End:</strong>{" "}
-                            {new Date(selectedEvent.endTime).toLocaleString()}
-                        </p>
-
-                        {registerError && <p className="error">{registerError}</p>}
-
-                        {registered ? (
-                            <button
-                                className="primary-button"
-                                onClick={unregisterForEvent}
-                                disabled={submitting}
-                            >
-                                {submitting ? "Unregistering..." : "Unregister"}
+                <Modal
+                    title={selectedEvent.title}
+                    subtitle={organizationName || "Event details"}
+                    onClose={closePopup}
+                    footer={
+                        <>
+                            <button onClick={closePopup} className="btn btn-secondary">
+                                Close
                             </button>
-                        ) : (
-                            <button
-                                className="primary-button"
-                                onClick={registerForEvent}
-                                disabled={submitting}
-                            >
-                                {submitting ? "Registering..." : "Register for Event"}
-                            </button>
-                        )} {" "}
 
-                        <button onClick={closePopup} className="primary-button">
-                            Close
-                        </button>
+                            {registered ? (
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={unregisterForEvent}
+                                    disabled={submitting}
+                                >
+                                    {submitting ? "Unregistering..." : "Unregister"}
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={registerForEvent}
+                                    disabled={submitting}
+                                >
+                                    {submitting ? "Registering..." : "Register for event"}
+                                </button>
+                            )}
+                        </>
+                    }
+                >
+
+                    {registered && (
+                        <p className="alert alert-success mb-5">
+                            <CheckCircleIcon />
+                            You are registered for this event.
+                        </p>
+                    )}
+
+                    {registerError && (
+                        <p className="alert alert-error mb-5">
+                            <AlertIcon />
+                            {registerError}
+                        </p>
+                    )}
+
+                    <div className="detail-list">
+
+                        {organizationName && (
+                            <div className="detail">
+                                <BuildingIcon />
+                                <span>
+                                    <span className="detail-label">Organization</span>
+                                    <span className="detail-value">{organizationName}</span>
+                                </span>
+                            </div>
+                        )}
+
+                        <div className="detail">
+                            <MapPinIcon />
+                            <span>
+                                <span className="detail-label">Location</span>
+                                <span className="detail-value">{selectedEvent.location}</span>
+                            </span>
+                        </div>
+
+                        <div className="detail">
+                            <ClockIcon />
+                            <span>
+                                <span className="detail-label">When</span>
+                                <span className="detail-value">
+                                    {formatEventWhen(selectedEvent.startTime, selectedEvent.endTime)}
+                                </span>
+                            </span>
+                        </div>
+
+                        {selectedEvent.description && (
+                            <div className="detail">
+                                <CalendarIcon />
+                                <span>
+                                    <span className="detail-label">Description</span>
+                                    <span className="detail-value leading-relaxed">
+                                        {selectedEvent.description}
+                                    </span>
+                                </span>
+                            </div>
+                        )}
 
                     </div>
-                </div>
+
+                </Modal>
             )}
 
         </div>

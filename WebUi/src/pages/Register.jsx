@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from "../services/api.js";
 import Navbar from '../components/Navbar.jsx'
+import { AlertIcon, CheckCircleIcon } from '../components/Icons.jsx'
 import "../css/index.css"
 
 function Register() {
@@ -16,6 +17,8 @@ function Register() {
     const [error, setError] = useState('')
     const [registered, setRegistered] = useState(false)
     const [busy, setBusy] = useState(false)
+
+    const isOrganization = accountType === 'organization'
 
     async function tryUserRegister(email, password, name) {
         const body = { email, password, name };
@@ -35,7 +38,7 @@ function Register() {
         setBusy(true);
 
         try {
-            if (accountType === 'volunteer') {
+            if (!isOrganization) {
                 await tryUserRegister(email, password, name);
             } else {
                 await tryOrgRegister(email, password, name, contactEmail, phoneNumber, description);
@@ -50,130 +53,161 @@ function Register() {
     }
 
     return (
-        <div className="lr-page">
+        <div className="page">
+
             <Navbar />
 
-            <div className="lr-content">
-                <div className="lr-container">
+            <main className="auth">
+                <div className="auth-card">
 
                     {registered ? (
-                        <>
-                            <h1>Account created</h1>
+                        <div className="text-center">
 
-                            <p className="success">
-                                Your {accountType === 'volunteer' ? 'volunteer' : 'organization'} account
-                                is ready. You can log in with {email} now.
+                            <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-700">
+                                <CheckCircleIcon className="h-7 w-7" />
+                            </div>
+
+                            <h1 className="auth-title">Account created</h1>
+
+                            <p className="auth-sub">
+                                Your {isOrganization ? 'organization' : 'volunteer'} account is ready.
+                                You can log in with {email} now.
                             </p>
 
-                            <Link to="/login" className="primary-button">
+                            <Link to="/login" className="btn btn-primary btn-block">
                                 Go to login
                             </Link>
-                        </>
+
+                        </div>
                     ) : (
-                    <>
-                    <p className="eyebrow">Join the movement</p>
-                    <h1>Create your GoodDeeds account</h1>
-                    <p>Choose how you want to contribute to your community.</p>
+                        <>
+                            <h1 className="auth-title">Create an account</h1>
+                            <p className="auth-sub">Choose the type of account you want to create.</p>
 
-                    <div className="account-type">
-                        <button type="button" className={
-                            accountType === 'volunteer' ? 'account-button active' : 'account-button'
-                        } onClick={() => setAccountType('volunteer')}>
-                            Volunteer
-                        </button>
+                            <div className="segmented mb-6">
+                                <button
+                                    type="button"
+                                    className={isOrganization ? 'segment' : 'segment is-active'}
+                                    onClick={() => setAccountType('volunteer')}
+                                >
+                                    Volunteer
+                                </button>
 
-                        <button
-                            type="button" className={
-                            accountType === 'organization' ? 'account-button active' : 'account-button'
-                        } onClick={() => setAccountType('organization')}>
-                            Organization
-                        </button>
-                    </div>
-
-                    <form className="register-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="name">
-                                {accountType === 'volunteer' ? 'Full Name' : 'Organization Name'}
-                            </label>
-
-                            <input type="text" id="name" placeholder={
-                                accountType === 'volunteer' ? 'Enter your full name' : 'Enter your organization name'
-                            }
-                                   value={name}
-                                   onChange={(e) => setName(e.target.value)}/>
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                type="email" id="email" placeholder="Enter your email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <input type="password" id="password" placeholder="Create a password"
-                                   value={password}
-                                   onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-                        
-                        {accountType === 'organization' && (
-                            <div className="form-group">
-                                <label htmlFor="phonenumber">
-                                    Phone Number
-                                </label>
-                                <input id="phonenumber" placeholder="Enter your phone number"
-                                       value={phoneNumber}
-                                       onChange={(e) => setPhoneNumber(e.target.value)}
-                                />
+                                <button
+                                    type="button"
+                                    className={isOrganization ? 'segment is-active' : 'segment'}
+                                    onClick={() => setAccountType('organization')}
+                                >
+                                    Organization
+                                </button>
                             </div>
-                        )}
 
-                        {accountType === 'organization' && (
-                            <div className="form-group">
-                                <label htmlFor="orgemail">
-                                    Organization Email
-                                </label>
-                                <input type="email" id="orgemail" placeholder="Enter your organization email"
-                                       value={contactEmail}
-                                       onChange={(e) => setContactEmail(e.target.value)}
-                                />
-                            </div>
-                        )}
+                            <form className="form" onSubmit={handleSubmit}>
 
-                        {accountType === 'organization' && (
-                            <div className="form-group">
-                                <label htmlFor="description">
-                                    Organization Description
-                                </label>
-                                <textarea id="description" placeholder="Tell us about your organization"
-                                          value={description}
-                                          onChange={(e) => setDescription(e.target.value)}
-                                />
-                            </div>
-                        )}
+                                <div className="field">
+                                    <label className="field-label" htmlFor="name">
+                                        {isOrganization ? 'Organization name' : 'Full name'}
+                                    </label>
 
-                        {error && <p className="error">{error}</p>}
+                                    <input
+                                        className="input"
+                                        type="text"
+                                        id="name"
+                                        placeholder={isOrganization ? 'Enter your organization name' : 'Enter your full name'}
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                    />
+                                </div>
 
-                        <button type="submit" className="primary-button" disabled={busy}>
-                            {busy
-                                ? 'Creating account...'
-                                : `Create ${accountType === 'volunteer' ? 'Volunteer' : 'Organization'} Account`}
-                        </button>
-                    </form>
+                                <div className="field">
+                                    <label className="field-label" htmlFor="email">Email</label>
+                                    <input
+                                        className="input"
+                                        type="email"
+                                        id="email"
+                                        autoComplete="email"
+                                        placeholder="you@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
 
-                    <p className="link">
-                        Already have an account?{' '}
-                        <Link to="/login">Login</Link>
-                    </p>
-                    </>
+                                <div className="field">
+                                    <label className="field-label" htmlFor="password">Password</label>
+                                    <input
+                                        className="input"
+                                        type="password"
+                                        id="password"
+                                        autoComplete="new-password"
+                                        placeholder="Create a password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+
+                                {isOrganization && (
+                                    <>
+                                        <div className="field">
+                                            <label className="field-label" htmlFor="phonenumber">Phone number</label>
+                                            <input
+                                                className="input"
+                                                id="phonenumber"
+                                                placeholder="(555) 555-5555"
+                                                value={phoneNumber}
+                                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="field">
+                                            <label className="field-label" htmlFor="orgemail">Organization email</label>
+                                            <input
+                                                className="input"
+                                                type="email"
+                                                id="orgemail"
+                                                placeholder="contact@organization.org"
+                                                value={contactEmail}
+                                                onChange={(e) => setContactEmail(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="field">
+                                            <label className="field-label" htmlFor="description">Organization description</label>
+                                            <textarea
+                                                className="textarea"
+                                                id="description"
+                                                placeholder="Tell volunteers what your organization does"
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
+                                            />
+                                        </div>
+                                    </>
+                                )}
+
+                                {error && (
+                                    <p className="alert alert-error">
+                                        <AlertIcon />
+                                        {error}
+                                    </p>
+                                )}
+
+                                <button type="submit" className="btn btn-primary btn-block mt-1" disabled={busy}>
+                                    {busy
+                                        ? 'Creating account...'
+                                        : `Create ${isOrganization ? 'organization' : 'volunteer'} account`}
+                                </button>
+
+                            </form>
+
+                            <p className="auth-foot">
+                                Already have an account?{' '}
+                                <Link className="link" to="/login">Login</Link>
+                            </p>
+                        </>
                     )}
 
                 </div>
-            </div>
+            </main>
+
         </div>
     )
 }

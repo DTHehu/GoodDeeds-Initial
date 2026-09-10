@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api, saveTokens, saveDashboardPath } from '../services/api'
 import Navbar from '../components/Navbar.jsx'
+import { AlertIcon } from '../components/Icons.jsx'
 import "../css/index.css"
 
 function Login() {
@@ -60,55 +61,65 @@ function Login() {
     }
 
     return (
-        <div className="lr-page">
+        <div className="page">
 
             <Navbar />
 
-            <div className="lr-content">
-                <div className="lr-container">
-                    <p className="eyebrow">Welcome back</p>
-                    <h1>Sign in to GoodDeeds</h1>
-                    <p>
-                        Pick up where you left off and keep making a difference.
-                    </p>
+            <main className="auth">
+                <div className="auth-card">
 
-                    <form className="login-form" onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
+                    <h1 className="auth-title">Welcome back</h1>
+                    <p className="auth-sub">Volunteer or organization, sign in below.</p>
+
+                    <form className="form" onSubmit={handleSubmit}>
+
+                        <div className="field">
+                            <label className="field-label" htmlFor="email">Email</label>
                             <input
+                                className="input"
                                 type="email"
                                 id="email"
-                                placeholder="Enter your email"
+                                autoComplete="email"
+                                placeholder="you@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
+                        <div className="field">
+                            <label className="field-label" htmlFor="password">Password</label>
                             <input
+                                className="input"
                                 type="password"
                                 id="password"
+                                autoComplete="current-password"
                                 placeholder="Enter your password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
 
-                        {error && <p className="error">{error}</p>}
+                        {error && (
+                            <p className="alert alert-error">
+                                <AlertIcon />
+                                {error}
+                            </p>
+                        )}
 
-                        <button type="submit" className="primary-button" disabled={busy}>
-                            {busy ? 'Signing in...' : 'Sign in'}
+                        <button type="submit" className="btn btn-primary btn-block mt-1" disabled={busy}>
+                            {busy ? 'Signing in...' : 'Login'}
                         </button>
+
                     </form>
 
-                    <p className="link">
+                    <p className="auth-foot">
                         Don't have an account?{' '}
-                        <Link to="/register">Sign up</Link>
+                        <Link className="link" to="/register">Sign up</Link>
                     </p>
 
                 </div>
-            </div>
+            </main>
+
         </div>
     )
 }
