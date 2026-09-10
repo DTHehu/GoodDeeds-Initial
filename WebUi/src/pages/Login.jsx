@@ -66,9 +66,10 @@ function Login() {
 
             <div className="lr-content">
                 <div className="lr-container">
-                    <h1>Login</h1>
+                    <p className="eyebrow">Welcome back</p>
+                    <h1>Sign in to GoodDeeds</h1>
                     <p>
-                        Volunteer or organization, sign in below.
+                        Pick up where you left off and keep making a difference.
                     </p>
 
                     <form className="login-form" onSubmit={handleSubmit}>
@@ -97,7 +98,7 @@ function Login() {
                         {error && <p className="error">{error}</p>}
 
                         <button type="submit" className="primary-button" disabled={busy}>
-                            {busy ? 'Signing in...' : 'Login'}
+                            {busy ? 'Signing in...' : 'Sign in'}
                         </button>
                     </form>
 

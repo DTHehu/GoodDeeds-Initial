@@ -58,17 +58,25 @@ function Organizations() {
 
             <Navbar />
 
-            <section className="about">
+            <section className="about page-hero">
 
-                <h2>ORGANIZATIONS</h2>
+                <p className="eyebrow">Community partners</p>
+
+                <h2>Meet the people making a difference.</h2>
 
                 <p>
-                    Browse the organizations creating volunteer opportunities on GoodDeeds.
+                    Explore organizations near you and discover the causes, projects, and people your time can support.
                 </p>
 
             </section>
 
-            <section className="info-container">
+            <section className="info-container directory-section">
+
+                <div className="section-heading">
+                    <p className="eyebrow">Find your fit</p>
+                    <h2>Organizations on GoodDeeds</h2>
+                    <p>Learn about each organization and browse the opportunities they are building for the community.</p>
+                </div>
 
                 {error && <p className="error">{error}</p>}
 

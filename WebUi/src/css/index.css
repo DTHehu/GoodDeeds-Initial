@@ -32,18 +32,20 @@ button { transition: background-color 160ms ease, border-color 160ms ease, trans
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 22px clamp(20px, 6vw, 84px);
+    padding: 15px clamp(20px, 6vw, 84px);
     background: rgba(251, 250, 246, 0.96);
     border-bottom: 1px solid var(--line);
 }
 
-.navbar .link { margin: 0; }
+.navbar .link { display: flex; align-items: center; margin: 0; line-height: 1; }
 .navbar .link a {
+    display: inline-block;
     color: var(--forest-dark);
-    font-size: 26px;
+    font-size: 14px;
     font-weight: 700;
-    letter-spacing: -0.5px;
+    line-height: 1;
     text-decoration: none;
+    transform: translateY(-2px);
 }
 
 .nav-links { display: flex; align-items: center; gap: clamp(16px, 3vw, 32px); }
@@ -76,6 +78,11 @@ button { transition: background-color 160ms ease, border-color 160ms ease, trans
 }
 .about h2 { position: relative; z-index: 1; margin: 0 auto 18px; max-width: 850px; font-size: clamp(38px, 7vw, 76px); line-height: .98; letter-spacing: -2px; }
 .about p { position: relative; z-index: 1; max-width: 590px; margin: 0 auto; color: #dcefe5; font-size: 18px; line-height: 1.6; }
+.about .eyebrow { margin-bottom: 20px; color: #f7c7b8; }
+.eyebrow { color: var(--coral); font-family: Arial, sans-serif; font-size: 11px !important; font-weight: 700; letter-spacing: .16em; line-height: 1.3 !important; text-transform: uppercase; }
+.page-hero, .dashboard-hero { padding-top: clamp(54px, 8vw, 88px); padding-bottom: clamp(50px, 7vw, 78px); }
+.page-hero h2, .dashboard-hero h2 { max-width: 760px; font-size: clamp(36px, 6vw, 64px); }
+.page-hero p:last-child, .dashboard-hero p:last-child { max-width: 650px; }
 
 .lr-page { min-height: 100vh; background: linear-gradient(135deg, #f4f0e6, #dcefe5); }
 .lr-content { display: flex; min-height: calc(100vh - 77px); align-items: center; justify-content: center; padding: 48px 20px; }
@@ -117,6 +124,13 @@ button { transition: background-color 160ms ease, border-color 160ms ease, trans
 .info-container { padding: clamp(36px, 6vw, 72px) clamp(20px, 6vw, 84px); }
 .info-container > h2 { margin: 0 0 12px; color: var(--forest-dark); font-size: clamp(28px, 4vw, 42px); text-align: center; }
 .info-container > p:not(.error):not(.success) { margin: 0 auto 30px; color: var(--muted); font-family: Arial, sans-serif; font-size: 15px; text-align: center; }
+.info-container .section-heading { max-width: 680px; margin: 0 auto 38px; text-align: center; }
+.section-heading .eyebrow { margin: 0 0 10px; }
+.section-heading h2 { margin: 0 0 12px; color: var(--forest-dark); font-size: clamp(28px, 4vw, 42px); }
+.section-heading > p:last-child { margin: 0; color: var(--muted); font-family: Arial, sans-serif; font-size: 15px; line-height: 1.6; }
+.home-intro { padding-top: clamp(48px, 8vw, 92px); }
+.home-intro > .eyebrow { margin: 0 0 10px; text-align: center; }
+.home-intro > h2 { margin-bottom: 12px; }
 .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 20px; max-width: 1100px; margin: 34px auto 0; }
 .info-card { display: flex; flex-direction: column; min-width: 0; padding: 26px; border: 1px solid var(--line); border-radius: 3px; background: white; box-shadow: 0 8px 24px rgba(24,50,43,.06); }
 .info-card h3 { margin: 0 0 18px; color: var(--forest); font-size: 24px; }
@@ -132,7 +146,7 @@ button { transition: background-color 160ms ease, border-color 160ms ease, trans
 .event-form input[type="date"]::-webkit-calendar-picker-indicator, .event-form input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .6; }
 
 .search-section { padding: 36px 20px; background: #f2f5ef; border-bottom: 1px solid var(--line); text-align: center; }
-.search-section h2 { margin: 0; color: var(--forest-dark); font-size: 28px; }
+.search-section h2 { margin: 0; color: var(--forest-dark); font-size: clamp(25px, 4vw, 34px); }
 .search-section input { display: block; max-width: 600px; margin: 18px auto 0; }
 
 p.error, p.success { padding: 13px 14px; border-radius: 2px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.45; }
@@ -148,8 +162,8 @@ p.success { border: 1px solid #b8d9c8; background: #eff9f2; color: var(--forest)
 .popup-content .primary-button { margin-right: 8px; }
 
 @media (max-width: 720px) {
-    .navbar { padding: 18px 20px; }
-    .navbar .link a { font-size: 22px; }
+    .navbar { padding: 12px 20px; }
+    .navbar .link a { font-size: 12px; }
     .nav-links { gap: 14px; }
     .nav-links a, .nav-button { font-size: 12px; }
     .dashboard { display: block; }

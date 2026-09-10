@@ -191,13 +191,13 @@ function OrgDashboard() {
                 {/* Sidebar */}
                 <aside className="sidebar">
 
-                    <h3>Organization</h3>
+                    <h3>Your organization</h3>
 
                     <button
                         className="primary-button"
                         onClick={showForm ? cancelForm : startCreate}
                     >
-                        {showForm ? "Cancel" : "Add Event"}
+                        {showForm ? "Close form" : "Create an opportunity"}
                     </button>
 
                     {showForm && (
@@ -283,13 +283,14 @@ function OrgDashboard() {
                 {/* Dashboard Content */}
                 <main className="dashboard-content">
 
-                    <section className="about">
+                    <section className="about dashboard-hero">
 
-                        <h2>ORGANIZATION DASHBOARD</h2>
+                        <p className="eyebrow">Your organization hub</p>
+
+                        <h2>Turn your mission into action.</h2>
 
                         <p>
-                            Create volunteer opportunities and connect
-                            with people who want to help.
+                            Create thoughtful volunteer opportunities and build a community of people ready to help.
                         </p>
 
                     </section>
@@ -297,7 +298,7 @@ function OrgDashboard() {
 
                     <section className="info-container">
 
-                        <h2>Your Events</h2>
+                        <h2>Your opportunities</h2>
 
                         {error && <p className="error">{error}</p>}
 

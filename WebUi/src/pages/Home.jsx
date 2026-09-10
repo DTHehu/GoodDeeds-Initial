@@ -12,32 +12,36 @@ function Home() {
 
       <Navbar />
 
-      <section className="about">
+      <section className="about home-hero">
 
-        <h2>Volunteering Made Easy</h2>
+        <p className="eyebrow">Small actions. Stronger communities.</p>
+
+        <h2>Find a way to do good today.</h2>
 
         <p>
-          Connect with organizations and find opportunities
-          to make a difference in your community.
+          GoodDeeds connects volunteers with local organizations and meaningful
+          opportunities to make a difference.
         </p>
 
         {loggedIn ? (
           <Link to={getDashboardPath()} className="primary-button hero-button">
-            Go to your dashboard
+            Open your dashboard
           </Link>
         ) : (
           <Link to="/register" className="primary-button hero-button">
-            Get started
+            Find your opportunity
           </Link>
         )}
 
       </section>
 
-      <section className="info-container">
+      <section className="info-container home-intro">
 
-        <h2>Welcome to GoodDeeds</h2>
+        <p className="eyebrow">How GoodDeeds works</p>
 
-        <p>Choose how you would like to use GoodDeeds.</p>
+        <h2>There is a place for you here.</h2>
+
+        <p>Whether you are ready to lend a hand or rally people around a cause, start with the path that fits you.</p>
 
         <div className="info-cards">
 
@@ -46,12 +50,12 @@ function Home() {
             <h3>Volunteer</h3>
 
             <p>
-              Find volunteer opportunities and make a difference in your community.
+              Discover flexible local events, meet people who care, and give your time to causes that matter.
             </p>
 
             {!loggedIn && (
               <Link to="/register" className="primary-button">
-                Sign up to volunteer
+                Join as a volunteer
               </Link>
             )}
 
@@ -62,12 +66,12 @@ function Home() {
             <h3>Organization</h3>
 
             <p>
-              Create volunteer opportunities and connect with people who want to help.
+              Share the work your organization is doing and find committed volunteers to help move it forward.
             </p>
 
             {!loggedIn && (
               <Link to="/register" className="primary-button">
-                Register your organization
+                Create an organization account
               </Link>
             )}
 

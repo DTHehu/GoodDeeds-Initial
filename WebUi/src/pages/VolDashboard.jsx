@@ -120,10 +120,10 @@ function VolDashboard() {
                 {/* Sidebar */}
                 <aside className="sidebar">
 
-                    <h3>My Events</h3>
+                    <h3>Your commitments</h3>
 
                     {registeredEvents.length === 0 ? (
-                        <p>You haven't registered for any events yet.</p>
+                            <p>Your registered opportunities will appear here.</p>
                     ) : (
                         <div className="sidebar-list">
                             {registeredEvents.map((event) => (
@@ -146,13 +146,14 @@ function VolDashboard() {
                 <main className="dashboard-content">
 
                     {/* About Section */}
-                    <section className="about">
+                    <section className="about dashboard-hero">
 
-                        <h2>VOLUNTEER DASHBOARD</h2>
+                        <p className="eyebrow">Your volunteer hub</p>
+
+                        <h2>Make time for what matters.</h2>
 
                         <p>
-                            Connect with organizations and find opportunities
-                            to make a difference in your community.
+                            Browse open opportunities, learn about the people behind them, and choose where your help can go furthest.
                         </p>
 
                     </section>
@@ -161,11 +162,11 @@ function VolDashboard() {
                     {/* Search */}
                     <section className="search-section">
 
-                        <h2>Find an Opportunity</h2>
+                        <h2>Find your next opportunity</h2>
 
                         <input
                             type="text"
-                            placeholder="Search events..."
+                            placeholder="Search by cause, place, or event name"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -176,7 +177,7 @@ function VolDashboard() {
                     {/* Events */}
                     <section className="info-container">
 
-                        <h2>Volunteer Opportunities</h2>
+                        <h2>Open opportunities</h2>
 
                         {error && <p className="error">{error}</p>}
 

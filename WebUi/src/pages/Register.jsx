@@ -71,8 +71,9 @@ function Register() {
                         </>
                     ) : (
                     <>
-                    <h1>Create an Account</h1>
-                    <p>Choose the type of account you want to create.</p>
+                    <p className="eyebrow">Join the movement</p>
+                    <h1>Create your GoodDeeds account</h1>
+                    <p>Choose how you want to contribute to your community.</p>
 
                     <div className="account-type">
                         <button type="button" className={
